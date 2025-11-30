@@ -1,0 +1,104 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block title %}
+  Organizer Dashboard
+{% endblock %}
+
+{% block events %}
+  <div class="max-w-7xl mx-auto px-6 py-10 space-y-10">
+    <div class="flex flex-col items-center space-y-4">
+      <form class="w-full max-w-xl flex items-center space-x-2">
+        <input type="text" placeholder="Search events by name or location..." class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">Search</button>
+      </form>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Optimized Query Filters Placeholder -->
+      <button class="p-6 bg-white border rounded-xl shadow hover:shadow-md transition text-left">
+        <h3 class="text-sm font-medium text-gray-500">Total Participants</h3>
+        <p class="text-3xl font-bold mt-2">0</p>
+      </button>
+      <button class="p-6 bg-white border rounded-xl shadow hover:shadow-md transition text-left">
+        <h3 class="text-sm font-medium text-gray-500">Total Events</h3>
+        <p class="text-3xl font-bold mt-2">0</p>
+      </button>
+      <button class="p-6 bg-white border rounded-xl shadow hover:shadow-md transition text-left">
+        <h3 class="text-sm font-medium text-gray-500">Upcoming Events</h3>
+        <p class="text-3xl font-bold mt-2">0</p>
+      </button>
+      <button class="p-6 bg-white border rounded-xl shadow hover:shadow-md transition text-left">
+        <h3 class="text-sm font-medium text-gray-500">Past Events</h3>
+        <p class="text-3xl font-bold mt-2">0</p>
+      </button>
+    </div>
+
+    <div>
+      <h3 class="text-2xl font-semibold mb-4">Today's Events</h3>
+      <div class="space-y-4">
+        <div class="p-6 bg-white border rounded-xl shadow-sm hover:shadow transition">
+          <div class="flex justify-between items-center">
+            <div>
+              <h4 class="text-xl font-semibold">Sample Event</h4>
+              <p class="text-sm text-gray-500 mt-1">Conference • Dhaka</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-gray-500">Date: Today</p>
+              <p class="text-base font-medium">3:00 PM</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6 bg-white border rounded-xl shadow-sm hover:shadow transition">
+          <div class="flex justify-between items-center">
+            <div>
+              <h4 class="text-xl font-semibold">Workshop Session</h4>
+              <p class="text-sm text-gray-500 mt-1">Training • Online</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-gray-500">Date: Today</p>
+              <p class="text-base font-medium">6:00 PM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- OPTIMIZED QUERY RESULTS PLACEHOLDER -->
+    <div class="mt-16 space-y-10">
+      <h3 class="text-2xl font-semibold text-center">Filtered Results (Optimized Queries)</h3>
+
+      <!-- CATEGORY FILTER -->
+      <div class="bg-white border rounded-xl shadow p-6">
+        <h4 class="text-xl font-semibold mb-4">Filter by Category</h4>
+        <div class="flex flex-wrap gap-3">
+          <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Conference</button>
+          <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Workshop</button>
+          <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Seminar</button>
+          <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Meetup</button>
+        </div>
+      </div>
+
+      <!-- DATE RANGE FILTER -->
+      <div class="bg-white border rounded-xl shadow p-6">
+        <h4 class="text-xl font-semibold mb-4">Filter by Date Range</h4>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <input type="date" class="px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:outline-none" />
+          <span class="text-gray-600 font-medium">to</span>
+          <input type="date" class="px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:outline-none" />
+          <button class="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">Apply</button>
+        </div>
+      </div>
+
+      <!-- FILTERED RESULTS DISPLAY -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="p-6 bg-white border rounded-xl shadow-sm">
+          <h4 class="text-xl font-semibold mb-3">Upcoming Events (Filtered)</h4>
+          <p class="text-gray-500 text-sm">This section will show events after today using optimized ORM queries.</p>
+        </div>
+        <div class="p-6 bg-white border rounded-xl shadow-sm">
+          <h4 class="text-xl font-semibold mb-3">Past Events (Filtered)</h4>
+          <p class="text-gray-500 text-sm">This section will show events before today using filtering + aggregation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

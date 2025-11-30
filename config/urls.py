@@ -24,5 +24,6 @@ from theme.views import home_view
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home_view, name="home"),
+    path("events/", include("events.urls")),
     path("__reload__/", include("django_browser_reload.urls")),  # last
 ] + debug_toolbar_urls()
