@@ -11,9 +11,13 @@ def organizer_dashboard(request):
 
     counts = Event.objects.aggregate(
         total_participants=models.Count("participants", distinct=True),
-        total_events=models.Count("id"),
-        upcoming_events=models.Count("id", filter=models.Q(event_date__gt=today)),
-        past_events=models.Count("id", filter=models.Q(event_date__lt=today)),
+        total_events=models.Count("id", distinct=True),
+        upcoming_events=models.Count(
+            "id", filter=models.Q(event_date__gt=today), distinct=True
+        ),
+        past_events=models.Count(
+            "id", filter=models.Q(event_date__lt=today), distinct=True
+        ),
     )
 
     context = {"count": counts}
