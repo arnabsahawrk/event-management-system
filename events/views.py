@@ -4,7 +4,7 @@ from django.db.models.functions import Extract
 from django.shortcuts import render
 from django.utils import timezone
 
-from events.models import Category, Event
+from events.models import Category, Event, Participant
 
 
 def organizer_dashboard(request):
@@ -139,5 +139,25 @@ def organizer_dashboard(request):
 
 
 def view_all(request):
-    return render(request, "view-all.html", {"view_name": "Event"})
+    type = request.GET.get("type")
 
+    if type == "participant":
+        participants = Participant.objects.prefetch_related("events").annotate(
+            events_count=models.Count("events", distinct=True)
+        )
+        context = {"title": "Participant", "participants": participants}
+        return render(request, "participant-view.html", context)
+    elif type == "category":
+        categories = Category.objects.prefetch_related("events").annotate(
+            events_count=models.Count("events", distinct=True)
+        )
+        context = {"title": "Category", "categories": categories}
+        return render(request, "category-view.html", context)
+    else:
+        events = Event.objects.select_related("category").all()
+        context = {"title": "Event", "events": events}
+        return render(request, "event-view.html", context)
+
+
+def create_event(request):
+    return render(request, "create-form.html", {"title": "Create Form"})
