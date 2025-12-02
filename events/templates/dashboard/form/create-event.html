@@ -1,0 +1,30 @@
+{% extends 'dashboard/form/create-form.html' %}
+
+{% block create %}
+  <div class="space-y-6">
+    <p>
+      <a href="{% url 'view-all' %}?type=event" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
+    </p>
+    <div class="lg:w-1/2 mx-auto">
+      {% if messages %}
+        <div class="space-y-2">
+          {% for message in messages %}
+            {% if message.tags == 'success' %}
+              <span class="inline-block px-3 py-1 rounded-md text-sm font-medium bg-green-600 text-white">{{ message }}</span>
+            {% elif message.tags == 'error' %}
+              <span class="inline-block px-3 py-1 rounded-md text-sm font-medium bg-red-600 text-white">{{ message }}</span>
+            {% else %}
+              <span class="inline-block px-3 py-1 rounded-md text-sm font-medium bg-blue-600 text-white">{{ message }}</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ event_form }}
+        <button type="submit" class="px-5 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition w-full font-medium">Submit</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

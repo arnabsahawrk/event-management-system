@@ -1,10 +1,10 @@
-{% extends 'view-all.html' %}
+{% extends 'dashboard/view/view-all.html' %}
 
 {% block view %}
   <div class="space-y-6">
     <p class="flex flex-wrap gap-4">
       <a href="{% url 'organizer-dashboard' %}" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
-      <a href="{% url 'home' %}" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Create Participant</a>
+      <a href="{% url 'create-form' %}?type=participant" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Create Participant</a>
     </p>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {% if participants %}

@@ -4,6 +4,7 @@ from django.db.models.functions import Extract
 from django.shortcuts import render
 from django.utils import timezone
 
+from events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
 from events.models import Category, Event, Participant
 
 
@@ -146,18 +147,32 @@ def view_all(request):
             events_count=models.Count("events", distinct=True)
         )
         context = {"title": "Participant", "participants": participants}
-        return render(request, "participant-view.html", context)
+        return render(request, "dashboard/view/participant-view.html", context)
     elif type == "category":
         categories = Category.objects.prefetch_related("events").annotate(
             events_count=models.Count("events", distinct=True)
         )
         context = {"title": "Category", "categories": categories}
-        return render(request, "category-view.html", context)
+        return render(request, "dashboard/view/category-view.html", context)
     else:
         events = Event.objects.select_related("category").all()
         context = {"title": "Event", "events": events}
-        return render(request, "event-view.html", context)
+        return render(request, "dashboard/view/event-view.html", context)
 
 
 def create_event(request):
-    return render(request, "create-form.html", {"title": "Create Form"})
+    type = request.GET.get("type")
+
+    if type == "participant":
+        participant_form = ParticipantModelForm()
+        context = {"title": "Create Participant", "participant_form": participant_form}
+        return render(request, "dashboard/form/create-participant.html", context)
+    if type == "category":
+        category_form = CategoryModelForm()
+
+        context = {"title": "Create Category", "category_form": category_form}
+        return render(request, "dashboard/form/create-category.html", context)
+    else:
+        event_form = EventModelForm()
+        context = {"title": "Create Event", "event_form": event_form}
+        return render(request, "dashboard/form/create-event.html", context)
