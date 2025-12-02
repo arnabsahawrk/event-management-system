@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Event(models.Model):
@@ -14,6 +15,17 @@ class Event(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
+
+    @property
+    def day_status(self):
+        today = timezone.now().date()
+
+        if self.event_date == today:
+            return "Today"
+        elif self.event_date > today:
+            return "Upcoming"
+        else:
+            return "Past"
 
     def __str__(self) -> str:
         return self.name
