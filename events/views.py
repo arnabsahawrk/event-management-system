@@ -269,3 +269,35 @@ def update_form(request, id):
 
         context = {"title": "Update Event", "event_form": event_form}
         return render(request, "dashboard/form/create-event.html", context)
+
+
+def delete(request, id):
+    type = request.GET.get("type")
+
+    if type == "participant":
+        if request.method == "POST":
+            participant = Participant.objects.get(id=id)
+            participant.delete()
+            messages.success(request, "Participant deleted successfully")
+            return redirect(f"{reverse('view-all')}?type=participant")
+        else:
+            messages.error(request, "Something went wrong")
+            return redirect(f"{reverse('view-all')}?type=participant")
+    elif type == "category":
+        if request.method == "POST":
+            category = Category.objects.get(id=id)
+            category.delete()
+            messages.success(request, "Category deleted successfully")
+            return redirect(f"{reverse('view-all')}?type=category")
+        else:
+            messages.error(request, "Something went wrong")
+            return redirect(f"{reverse('view-all')}?type=category")
+    else:
+        if request.method == "POST":
+            event = Event.objects.get(id=id)
+            event.delete()
+            messages.success(request, "Event deleted successfully")
+            return redirect(f"{reverse('view-all')}?type=event")
+        else:
+            messages.error(request, "Something went wrong")
+            return redirect(f"{reverse('view-all')}?type=event")

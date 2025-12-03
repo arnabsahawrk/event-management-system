@@ -2,10 +2,25 @@
 
 {% block view %}
   <div class="space-y-6">
-    <p class="flex flex-wrap gap-4">
-      <a href="{% url 'organizer-dashboard' %}" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
-      <a href="{% url 'create-form' %}?type=category" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Create Category</a>
-    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <p class="flex flex-wrap gap-4 justify-self-start">
+        <a href="{% url 'organizer-dashboard' %}" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
+        <a href="{% url 'create-form' %}?type=category" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Create Category</a>
+      </p>
+      {% if messages %}
+        <p class="space-y-2 justify-self-end-safe">
+          {% for message in messages %}
+            {% if message.tags == 'success' %}
+              <span class="inline-block px-3 py-1 rounded-md text-sm font-medium bg-green-600 text-white">{{ message }}</span>
+            {% elif message.tags == 'error' %}
+              <span class="inline-block px-3 py-1 rounded-md text-sm font-medium bg-red-600 text-white">{{ message }}</span>
+            {% else %}
+              <span class="inline-block px-3 py-1 rounded-md text-sm font-medium bg-blue-600 text-white">{{ message }}</span>
+            {% endif %}
+          {% endfor %}
+        </p>
+      {% endif %}
+    </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {% if categories %}
         {% for category in categories %}
@@ -37,7 +52,10 @@
 
             <div class="flex flex-wrap gap-4 pt-3">
               <a href="{% url 'update-form' category.id %}?type=category" class="px-4 py-2 rounded font-medium bg-green-900 text-white text-lg">Update</a>
-              <a href="{% url 'home' %}" class="px-4 py-2 rounded font-medium bg-red-900 text-white text-lg">Delete</a>
+              <form action="{% url 'delete' category.id %}?type=category" method="post">
+                {% csrf_token %}
+                <button type="submit" class="px-4 py-2 rounded font-medium bg-red-900 text-white text-lg">Delete</button>
+              </form>
             </div>
           </div>
         {% endfor %}
