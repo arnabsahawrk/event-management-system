@@ -1,0 +1,63 @@
+{% extends 'dashboard/view/view-all.html' %}
+
+{% block view %}
+  <div class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <p class="flex flex-wrap gap-4 justify-self-start">
+        <a href="{% url 'organizer-dashboard' %}" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
+        <a href="{% url 'create-form' %}?type=participant" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Create Participant</a>
+      </p>
+      {% if messages %}
+        <p class="space-y-2 justify-self-end-safe">
+          {% for message in messages %}
+            {% if message.tags == 'success' %}
+              <span class="inline-block px-3 py-1 rounded-md text-sm font-medium bg-green-600 text-white">{{ message }}</span>
+            {% elif message.tags == 'error' %}
+              <span class="inline-block px-3 py-1 rounded-md text-sm font-medium bg-red-600 text-white">{{ message }}</span>
+            {% else %}
+              <span class="inline-block px-3 py-1 rounded-md text-sm font-medium bg-blue-600 text-white">{{ message }}</span>
+            {% endif %}
+          {% endfor %}
+        </p>
+      {% endif %}
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {% if participants %}
+        {% for participant in participants %}
+          <div class="p-6 bg-white border rounded-xl shadow-sm space-y-4 hover:shadow-md transition">
+            <h4 class="text-xl font-semibold mb-2 flex items-center gap-3">
+              {{ participant.name }}
+
+              {% if participant.events_count > 0 %}
+                <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">{{ participant.events_count }} Events</span>
+              {% else %}
+                <span class="px-2 py-1 text-xs rounded bg-gray-200 text-gray-600">No Events</span>
+              {% endif %}
+            </h4>
+            <p class="text-sm text-gray-600">
+              <span class="font-medium">Email:</span> {{ participant.email }}
+            </p>
+            {% if participant.events_count > 0 %}
+              <p class="text-sm font-medium mt-2 text-gray-700">Assigned Events:</p>
+              <div class="flex flex-wrap gap-2 mt-1">
+                {% for event in participant.events.all %}
+                  <span class="px-3 py-1 rounded bg-gray-100 text-gray-700 text-xs">{{ event.name }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <div class="flex flex-wrap gap-4 pt-3">
+              <a href="{% url 'update-form' participant.id %}?type=participant" class="px-4 py-2 rounded font-medium bg-green-900 text-white text-lg">Update</a>
+
+              <form action="{% url 'delete' participant.id %}?type=participant" method="post">
+                {% csrf_token %}
+                <button type="submit" class="px-4 py-2 rounded font-medium bg-red-900 text-white text-lg">Delete</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-gray-500">No participants found.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

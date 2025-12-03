@@ -1,0 +1,61 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Home</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    {% tailwind_preload_css %}
+    {% tailwind_css %}
+  </head>
+
+  <body class="bg-gray-50 min-h-screen antialiased text-gray-900 flex flex-col">
+    <nav class="bg-white shadow border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <h1 class="text-xl font-semibold tracking-wide text-center sm:text-left w-full">Event Management System</h1>
+        <a href="{% url 'organizer-dashboard' %}" class="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition hidden sm:inline-block">Dashboard</a>
+      </div>
+    </nav>
+
+    <main class="flex-grow min-h-[calc(100vh-64px-80px)]">
+      <section class="py-12 sm:py-16 md:py-20 lg:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight">Manage Your Events Effortlessly</h1>
+          <p class="mt-4 sm:mt-6 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">A simple, efficient, and responsive system to organize events, categories, and participants — built with Django and Tailwind CSS.</p>
+          <div class="mt-8 sm:mt-10">
+            <a href="{% url 'organizer-dashboard' %}" class="inline-block px-6 py-2.5 sm:px-8 sm:py-3 bg-blue-600 text-white text-base sm:text-lg rounded-lg shadow hover:bg-blue-700 transition">Go to Dashboard</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="py-12 sm:py-16 lg:py-20 bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 class="text-center text-2xl sm:text-3xl font-semibold text-gray-900 mb-8 sm:mb-12 lg:mb-16">What You Can Do</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+            <div class="p-6 sm:p-8 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
+              <h3 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Manage Events</h3>
+              <p class="text-sm sm:text-base text-gray-600">Create, update, and organize events with categories and scheduling details.</p>
+            </div>
+
+            <div class="p-6 sm:p-8 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
+              <h3 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Handle Participants</h3>
+              <p class="text-sm sm:text-base text-gray-600">Add participants, link them to events, and maintain attendee records efficiently.</p>
+            </div>
+
+            <div class="p-6 sm:p-8 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition md:col-span-2 lg:col-auto">
+              <h3 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Filter & Search</h3>
+              <p class="text-sm sm:text-base text-gray-600">Search events by name or location and filter events by category or date range.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-white shadow-lg border-t border-gray-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <p class="text-sm sm:text-base text-gray-600">© 2025 Arnab Saha</p>
+      </div>
+    </footer>
+  </body>
+</html>

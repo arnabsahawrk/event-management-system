@@ -1,0 +1,303 @@
+from django.db import models
+from django.db.models import Case, IntegerField, Value, When
+from django.db.models.functions import Extract
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils import timezone
+from django.contrib import messages
+
+from events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
+from events.models import Category, Event, Participant
+
+
+def organizer_dashboard(request):
+    today = timezone.now().date()
+
+    type = request.GET.get("type")
+
+    counts = Event.objects.aggregate(
+        total_participants=models.Count("participants", distinct=True),
+        total_events=models.Count("id", distinct=True),
+        upcoming_events=models.Count(
+            "id", filter=models.Q(event_date__gt=today), distinct=True
+        ),
+        past_events=models.Count(
+            "id", filter=models.Q(event_date__lt=today), distinct=True
+        ),
+    )
+
+    events = Event.objects.select_related("category").all()
+    todayEvents = events.filter(event_date=today)
+    categories = Category.objects.all()
+
+    if type == "search":
+        value = request.GET.get("search-value")
+        if value:
+            events = (
+                events.filter(
+                    models.Q(name__icontains=value)
+                    | models.Q(location__icontains=value)
+                )
+                .annotate(
+                    sort_group=Case(
+                        When(event_date__gte=today, then=Value(0)),
+                        When(event_date__lt=today, then=Value(1)),
+                        output_field=IntegerField(),
+                    ),
+                    sort_date=Case(
+                        When(
+                            event_date__gte=today,
+                            then=Extract("event_date", lookup_name="epoch"),
+                        ),
+                        When(
+                            event_date__lt=today,
+                            then=-Extract("event_date", lookup_name="epoch"),
+                        ),
+                        output_field=IntegerField(),
+                    ),
+                )
+                .order_by("sort_group", "sort_date")
+            )
+    elif type == "category":
+        id = request.GET.get("id")
+        if id:
+            events = (
+                events.filter(category=id)
+                .annotate(
+                    sort_group=Case(
+                        When(event_date__gte=today, then=Value(0)),
+                        When(event_date__lt=today, then=Value(1)),
+                        output_field=IntegerField(),
+                    ),
+                    sort_date=Case(
+                        When(
+                            event_date__gte=today,
+                            then=Extract("event_date", lookup_name="epoch"),
+                        ),
+                        When(
+                            event_date__lt=today,
+                            then=-Extract("event_date", lookup_name="epoch"),
+                        ),
+                        output_field=IntegerField(),
+                    ),
+                )
+                .order_by("sort_group", "sort_date")
+            )
+    elif type == "upcoming_events":
+        events = events.filter(event_date__gt=today).order_by("event_date")
+    elif type == "past_events":
+        events = events.filter(event_date__lt=today).order_by("-event_date")
+    elif type == "all_events":
+        events = events.annotate(
+            sort_group=Case(
+                When(event_date__gte=today, then=Value(0)),
+                When(event_date__lt=today, then=Value(1)),
+                output_field=IntegerField(),
+            ),
+            sort_date=Case(
+                When(
+                    event_date__gte=today,
+                    then=Extract("event_date", lookup_name="epoch"),
+                ),
+                When(
+                    event_date__lt=today,
+                    then=-Extract("event_date", lookup_name="epoch"),
+                ),
+                output_field=IntegerField(),
+            ),
+        ).order_by("sort_group", "sort_date")
+    elif type == "date-range":
+        date_from = request.GET.get("date-from")
+        date_to = request.GET.get("date-to")
+        events = (
+            events.filter(event_date__gte=date_from, event_date__lte=date_to)
+            .annotate(
+                sort_group=Case(
+                    When(event_date__gte=today, then=Value(0)),
+                    When(event_date__lt=today, then=Value(1)),
+                    output_field=IntegerField(),
+                ),
+                sort_date=Case(
+                    When(
+                        event_date__gte=today,
+                        then=Extract("event_date", lookup_name="epoch"),
+                    ),
+                    When(
+                        event_date__lt=today,
+                        then=-Extract("event_date", lookup_name="epoch"),
+                    ),
+                    output_field=IntegerField(),
+                ),
+            )
+            .order_by("sort_group", "sort_date")
+        )
+
+    context = {
+        "count": counts,
+        "events": events,
+        "today": todayEvents,
+        "categories": categories,
+    }
+    return render(request, "dashboard/organizer-dashboard.html", context)
+
+
+def view_all(request):
+    type = request.GET.get("type")
+
+    if type == "participant":
+        participants = Participant.objects.prefetch_related("events").annotate(
+            events_count=models.Count("events", distinct=True)
+        )
+        context = {"title": "Participant", "participants": participants}
+        return render(request, "dashboard/view/participant-view.html", context)
+    elif type == "category":
+        categories = Category.objects.prefetch_related("events").annotate(
+            events_count=models.Count("events", distinct=True)
+        )
+        context = {"title": "Category", "categories": categories}
+        return render(request, "dashboard/view/category-view.html", context)
+    else:
+        events = Event.objects.select_related("category").all()
+        context = {"title": "Event", "events": events}
+        return render(request, "dashboard/view/event-view.html", context)
+
+
+def create_form(request):
+    type = request.GET.get("type")
+
+    if type == "participant":
+        participant_form = ParticipantModelForm()
+
+        if request.method == "POST":
+            participant_form = ParticipantModelForm(request.POST)
+
+            if participant_form.is_valid():
+                participant_form.save()
+                messages.success(request, "Participant created successfully")
+                return redirect(f"{reverse('create-form')}?type=participant")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('create-form')}?type=participant")
+
+        context = {"title": "Create Participant", "participant_form": participant_form}
+        return render(request, "dashboard/form/create-participant.html", context)
+    elif type == "category":
+        category_form = CategoryModelForm()
+
+        if request.method == "POST":
+            category_form = CategoryModelForm(request.POST)
+
+            if category_form.is_valid():
+                category_form.save()
+                messages.success(request, "Category created successfully")
+                return redirect(f"{reverse('create-form')}?type=category")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('create-form')}?type=category")
+
+        context = {"title": "Create Category", "category_form": category_form}
+        return render(request, "dashboard/form/create-category.html", context)
+    else:
+        event_form = EventModelForm()
+
+        if request.method == "POST":
+            event_form = EventModelForm(request.POST)
+
+            if event_form.is_valid():
+                event_form.save()
+                messages.success(request, "Event created successfully")
+                return redirect(f"{reverse('create-form')}?type=event")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('create-form')}?type=event")
+
+        context = {"title": "Create Event", "event_form": event_form}
+        return render(request, "dashboard/form/create-event.html", context)
+
+
+def update_form(request, id):
+    type = request.GET.get("type")
+
+    if type == "participant":
+        participant = Participant.objects.get(id=id)
+        participant_form = ParticipantModelForm(instance=participant)
+
+        if request.method == "POST":
+            participant_form = ParticipantModelForm(request.POST, instance=participant)
+
+            if participant_form.is_valid():
+                participant_form.save()
+                messages.success(request, "Participant updated successfully")
+                return redirect(f"{reverse('update-form', args=[id])}?type=participant")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('update-form', args=[id])}?type=participant")
+
+        context = {"title": "Update Participant", "participant_form": participant_form}
+        return render(request, "dashboard/form/create-participant.html", context)
+    elif type == "category":
+        category = Category.objects.get(id=id)
+        category_form = CategoryModelForm(instance=category)
+
+        if request.method == "POST":
+            category_form = CategoryModelForm(request.POST, instance=category)
+
+            if category_form.is_valid():
+                category_form.save()
+                messages.success(request, "Category updated successfully")
+                return redirect(f"{reverse('update-form', args=[id])}?type=category")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('update-form', args=[id])}?type=category")
+
+        context = {"title": "Update Category", "category_form": category_form}
+        return render(request, "dashboard/form/create-category.html", context)
+    else:
+        event = Event.objects.get(id=id)
+        event_form = EventModelForm(instance=event)
+
+        if request.method == "POST":
+            event_form = EventModelForm(request.POST, instance=event)
+
+            if event_form.is_valid():
+                event_form.save()
+                messages.success(request, "Event updated successfully")
+                return redirect(f"{reverse('update-form', args=[id])}?type=event")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('update-form', args=[id])}?type=event")
+
+        context = {"title": "Update Event", "event_form": event_form}
+        return render(request, "dashboard/form/create-event.html", context)
+
+
+def delete(request, id):
+    type = request.GET.get("type")
+
+    if type == "participant":
+        if request.method == "POST":
+            participant = Participant.objects.get(id=id)
+            participant.delete()
+            messages.success(request, "Participant deleted successfully")
+            return redirect(f"{reverse('view-all')}?type=participant")
+        else:
+            messages.error(request, "Something went wrong")
+            return redirect(f"{reverse('view-all')}?type=participant")
+    elif type == "category":
+        if request.method == "POST":
+            category = Category.objects.get(id=id)
+            category.delete()
+            messages.success(request, "Category deleted successfully")
+            return redirect(f"{reverse('view-all')}?type=category")
+        else:
+            messages.error(request, "Something went wrong")
+            return redirect(f"{reverse('view-all')}?type=category")
+    else:
+        if request.method == "POST":
+            event = Event.objects.get(id=id)
+            event.delete()
+            messages.success(request, "Event deleted successfully")
+            return redirect(f"{reverse('view-all')}?type=event")
+        else:
+            messages.error(request, "Something went wrong")
+            return redirect(f"{reverse('view-all')}?type=event")
