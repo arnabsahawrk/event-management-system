@@ -23,7 +23,11 @@ if not DEBUG:
     X_FRAME_OPTIONS = "DENY"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-CSRF_TRUSTED_ORIGINS = ["https://*.onrender.com", "http://127.0.0.1:8000"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://event-management-system-0lcd.onrender.com",
+    "https://*.onrender.com",
+    "http://127.0.0.1:8000",
+]
 
 
 INSTALLED_APPS = [
