@@ -18,7 +18,7 @@ DEBUG = os.environ.get("DEBUG", "True") == "True"
 APPEND_SLASH = False
 
 
-ALLOWED_HOSTS=*
+ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = os.environ.get(
     "CSRF_TRUSTED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000"
 ).split(",")
