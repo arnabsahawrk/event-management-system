@@ -1,8 +1,10 @@
 from django.db import models
 from django.db.models import Case, IntegerField, Value, When
 from django.db.models.functions import Extract
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
+from django.contrib import messages
 
 from events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
 from events.models import Category, Event, Participant
@@ -160,19 +162,58 @@ def view_all(request):
         return render(request, "dashboard/view/event-view.html", context)
 
 
-def create_event(request):
+def create_form(request):
     type = request.GET.get("type")
 
     if type == "participant":
         participant_form = ParticipantModelForm()
+
+        if request.method == "POST":
+            participant_form = ParticipantModelForm(request.POST)
+
+            if participant_form.is_valid():
+                participant_form.save()
+                messages.success(request, "Participant created successfully")
+                return redirect(f"{reverse('create-form')}?type=participant")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('create-form')}?type=participant")
+
         context = {"title": "Create Participant", "participant_form": participant_form}
         return render(request, "dashboard/form/create-participant.html", context)
-    if type == "category":
+    elif type == "category":
         category_form = CategoryModelForm()
+
+        if request.method == "POST":
+            category_form = CategoryModelForm(request.POST)
+
+            if category_form.is_valid():
+                category_form.save()
+                messages.success(request, "Category created successfully")
+                return redirect(f"{reverse('create-form')}?type=category")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('create-form')}?type=category")
 
         context = {"title": "Create Category", "category_form": category_form}
         return render(request, "dashboard/form/create-category.html", context)
     else:
         event_form = EventModelForm()
+
+        if request.method == "POST":
+            event_form = EventModelForm(request.POST)
+
+            if event_form.is_valid():
+                event_form.save()
+                messages.success(request, "Event created successfully")
+                return redirect(f"{reverse('create-form')}?type=event")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('create-form')}?type=event")
+
         context = {"title": "Create Event", "event_form": event_form}
         return render(request, "dashboard/form/create-event.html", context)
+
+
+def update_form(request):
+    pass
