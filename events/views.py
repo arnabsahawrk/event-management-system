@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import Case, IntegerField, Value, When
 from django.db.models.functions import Extract
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -9,7 +8,6 @@ from django.contrib import messages
 
 from events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
 from events.models import Category, Event, Participant
-from events.seed_data import seed_database
 
 
 def organizer_dashboard(request):
@@ -303,8 +301,3 @@ def delete(request, id):
         else:
             messages.error(request, "Something went wrong")
             return redirect(f"{reverse('view-all')}?type=event")
-
-
-def seed_data_view(request):
-    result = seed_database()
-    return HttpResponse(result)
