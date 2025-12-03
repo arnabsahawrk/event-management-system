@@ -18,16 +18,13 @@ DEBUG = os.environ.get("DEBUG", "True") == "True"
 APPEND_SLASH = False
 
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,[::1]").split(",")
 CSRF_TRUSTED_ORIGINS = os.environ.get(
     "CSRF_TRUSTED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000"
 ).split(",")
 
 if not DEBUG:
     CSRF_TRUSTED_ORIGINS.append("https://*.onrender.com")
-
-if not DEBUG:
-    SECURE_SSL_REDIRECT = False
 
 
 INSTALLED_APPS = [
@@ -139,13 +136,19 @@ USE_TZ = True
 
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "theme" / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+if DEBUG:
+    STATICFILES_DIRS = []
+else:
+    STATICFILES_DIRS = [
+        BASE_DIR / "theme" / "static",
+    ]
 
 if not DEBUG:
     STORAGES = {
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.StaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
 
