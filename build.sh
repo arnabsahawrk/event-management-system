@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# exit on error
 set -o errexit
 
-# Install Python dependencies
+echo "Installing Python dependencies..."
 pip install -r requirements.txt
 
-# Install Node.js dependencies and build Tailwind CSS
 echo "Building Tailwind CSS..."
 cd theme/static_src
 npm install
 npm run build
 cd ../..
 
-# Collect static files (includes the compiled Tailwind CSS)
+echo "Collecting static files..."
 python manage.py collectstatic --no-input
 
-# Run database migrations
+echo "Running migrations..."
 python manage.py migrate
+
+echo "Build completed successfully!"
