@@ -16,10 +16,10 @@ fake = Faker()
 
 
 def populate_db(
-    num_categories=6,
+    num_categories=7,
     num_events=80,
-    num_participants=300,
-    max_participants_per_event=40,
+    num_participants=100,
+    max_participants_per_event=30,
 ):
 
     print("Clearing old data...")
