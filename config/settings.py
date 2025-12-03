@@ -15,16 +15,19 @@ if not SECRET_KEY:
 
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-APPEND_SLASH = False
+# APPEND_SLASH = False
 
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,[::1]").split(",")
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    "CSRF_TRUSTED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000"
-).split(",")
+# ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,[::1]").split(",")
+# CSRF_TRUSTED_ORIGINS = os.environ.get(
+#     "CSRF_TRUSTED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000"
+# ).split(",")
 
-if not DEBUG:
-    CSRF_TRUSTED_ORIGINS.append("https://*.onrender.com")
+# if not DEBUG:
+#     CSRF_TRUSTED_ORIGINS.append("https://*.onrender.com")
+
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["https://*.onrender.com", "http://127.0.0.1:8000"]
 
 
 INSTALLED_APPS = [
