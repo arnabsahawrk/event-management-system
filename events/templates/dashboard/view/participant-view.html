@@ -31,7 +31,7 @@
               </div>
             {% endif %}
             <div class="flex flex-wrap gap-4 pt-3">
-              <a href="{% url 'home' %}" class="px-4 py-2 rounded font-medium bg-green-900 text-white text-lg">Update</a>
+              <a href="{% url 'update-form' participant.id %}?type=participant" class="px-4 py-2 rounded font-medium bg-green-900 text-white text-lg">Update</a>
 
               <a href="{% url 'home' %}" class="px-4 py-2 rounded font-medium bg-red-900 text-white text-lg">Delete</a>
             </div>

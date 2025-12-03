@@ -215,5 +215,57 @@ def create_form(request):
         return render(request, "dashboard/form/create-event.html", context)
 
 
-def update_form(request):
-    pass
+def update_form(request, id):
+    type = request.GET.get("type")
+
+    if type == "participant":
+        participant = Participant.objects.get(id=id)
+        participant_form = ParticipantModelForm(instance=participant)
+
+        if request.method == "POST":
+            participant_form = ParticipantModelForm(request.POST, instance=participant)
+
+            if participant_form.is_valid():
+                participant_form.save()
+                messages.success(request, "Participant updated successfully")
+                return redirect(f"{reverse('update-form', args=[id])}?type=participant")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('update-form', args=[id])}?type=participant")
+
+        context = {"title": "Update Participant", "participant_form": participant_form}
+        return render(request, "dashboard/form/create-participant.html", context)
+    elif type == "category":
+        category = Category.objects.get(id=id)
+        category_form = CategoryModelForm(instance=category)
+
+        if request.method == "POST":
+            category_form = CategoryModelForm(request.POST, instance=category)
+
+            if category_form.is_valid():
+                category_form.save()
+                messages.success(request, "Category updated successfully")
+                return redirect(f"{reverse('update-form', args=[id])}?type=category")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('update-form', args=[id])}?type=category")
+
+        context = {"title": "Update Category", "category_form": category_form}
+        return render(request, "dashboard/form/create-category.html", context)
+    else:
+        event = Event.objects.get(id=id)
+        event_form = EventModelForm(instance=event)
+
+        if request.method == "POST":
+            event_form = EventModelForm(request.POST, instance=event)
+
+            if event_form.is_valid():
+                event_form.save()
+                messages.success(request, "Event updated successfully")
+                return redirect(f"{reverse('update-form', args=[id])}?type=event")
+            else:
+                messages.error(request, "Something went wrong")
+                return redirect(f"{reverse('update-form', args=[id])}?type=event")
+
+        context = {"title": "Update Event", "event_form": event_form}
+        return render(request, "dashboard/form/create-event.html", context)
