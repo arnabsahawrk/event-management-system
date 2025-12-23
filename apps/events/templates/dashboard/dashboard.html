@@ -10,7 +10,7 @@
 
       {% endblock %}
     </title>
-    <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}" />
+    {% include 'css_loader.html' %}
   </head>
   <body class="bg-gray-50 min-h-screen antialiased text-gray-900 flex flex-col">
     <nav class="bg-white shadow border-b border-gray-200">

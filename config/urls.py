@@ -2,12 +2,12 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 
-from apps.theme.views import home_view
+from theme.views import home_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home_view, name="home"),
-    path("events/", include("events.urls")),
+    path("events/", include("apps.events.urls")),
 ]
 
 if settings.DEBUG:

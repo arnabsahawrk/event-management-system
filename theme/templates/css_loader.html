@@ -1,0 +1,9 @@
+{% load static %}
+
+{% if DEBUG %}
+  {% load tailwind_tags %}
+  {% tailwind_preload_css %}
+  {% tailwind_css %}
+{% else %}
+  <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}" />
+{% endif %}
