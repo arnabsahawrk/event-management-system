@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 
-from events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
-from events.models import Category, Event, Participant
+from apps.events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
+from apps.events.models import Category, Event, Participant
 
 
 def organizer_dashboard(request):

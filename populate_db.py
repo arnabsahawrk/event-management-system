@@ -6,7 +6,7 @@ import django
 from django.utils import timezone
 from faker import Faker
 
-from events.models import Category, Event, Participant
+from apps.events.models import Category, Event, Participant
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()

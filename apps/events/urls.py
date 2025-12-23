@@ -1,6 +1,6 @@
 from django.urls import path
 
-from events.views import (
+from apps.events.views import (
     create_form,
     delete,
     organizer_dashboard,

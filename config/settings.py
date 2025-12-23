@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -6,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
 
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -34,8 +36,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "events",
-    "theme",
+    "apps.events",
+    "apps.core",
 ]
 
 if DEBUG:
@@ -46,6 +48,7 @@ if DEBUG:
         "debug_toolbar",
         "tailwind",
         "django_browser_reload",
+        "apps.theme",
     ]
 
 MIDDLEWARE = [
@@ -141,7 +144,7 @@ if DEBUG:
     STATICFILES_DIRS = []
 else:
     STATICFILES_DIRS = [
-        BASE_DIR / "theme" / "static",
+        BASE_DIR / "apps" / "theme" / "static",
     ]
 
 if not DEBUG:
