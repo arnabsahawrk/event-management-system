@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Event Management System</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% include 'css_loader.html' %}
+  </head>
+
+  <body class="bg-gray-50 min-h-screen text-gray-900 flex flex-col antialiased">
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-200 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="h-16 flex items-center justify-between">
+          <!-- Logo -->
+          <h1 class="text-lg font-semibold tracking-wide">Event Management System</h1>
+
+          <!-- Desktop Menu -->
+          <div class="hidden md:flex items-center gap-3">
+            {% if user.is_authenticated %}
+              <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition">Dashboard</a>
+              <a href="#" class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition">Logout</a>
+            {% else %}
+              <a href="#" class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition">Login</a>
+              <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition">Sign Up</a>
+            {% endif %}
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <button id="menu-toggle" class="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100 focus:outline-none">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="md:hidden hidden border-t border-gray-200 bg-white">
+        <div class="px-4 py-4 flex flex-col gap-3">
+          {% if user.is_authenticated %}
+            <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm text-center">Dashboard</a>
+            <a href="#" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-center">Logout</a>
+          {% else %}
+            <a href="#" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-center">Login</a>
+            <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm text-center">Sign Up</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <!-- Hero Section -->
+      <section class="py-20 text-center">
+        <div class="max-w-3xl mx-auto px-6">
+          <h2 class="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">Organize Events. Manage Roles. RSVP Seamlessly.</h2>
+
+          <p class="mt-5 text-gray-600 text-lg">A modern event management platform with authentication, role-based access, and RSVP functionality — built with Django.</p>
+
+          <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#" class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">Browse Events</a>
+
+            {% if not user.is_authenticated %}
+              <a href="#" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition">Create Account</a>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+
+      <!-- Roles Section -->
+      <section class="py-16 bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-6">
+          <h3 class="text-2xl font-semibold text-center mb-12">Built for Every Role</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="p-6 bg-gray-50 rounded-xl shadow-sm">
+              <h4 class="text-lg font-semibold mb-2">Admin</h4>
+              <p class="text-gray-600 text-sm">Full system control. Manage users, roles, events, and categories.</p>
+            </div>
+
+            <div class="p-6 bg-gray-50 rounded-xl shadow-sm">
+              <h4 class="text-lg font-semibold mb-2">Organizer</h4>
+              <p class="text-gray-600 text-sm">Create and manage events and categories from a dedicated dashboard.</p>
+            </div>
+
+            <div class="p-6 bg-gray-50 rounded-xl shadow-sm">
+              <h4 class="text-lg font-semibold mb-2">Participant</h4>
+              <p class="text-gray-600 text-sm">RSVP to events and track your registrations effortlessly.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4">
+      <div class="max-w-7xl mx-auto px-6 text-center">
+        <p class="text-sm text-gray-600">© 2025 Arnab Saha — Event Management System</p>
+      </div>
+    </footer>
+
+    <!-- JS: Mobile Menu Toggle -->
+    <script>
+      const toggleBtn = document.getElementById('menu-toggle')
+      const mobileMenu = document.getElementById('mobile-menu')
+      
+      toggleBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden')
+      })
+    </script>
+  </body>
+</html>
