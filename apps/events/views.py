@@ -10,7 +10,7 @@ from apps.events.forms import CategoryModelForm, EventModelForm, ParticipantMode
 from apps.events.models import Category, Event, Participant
 
 
-def organizer_dashboard(request):
+def dashboard(request):
     today = timezone.now().date()
 
     type = request.GET.get("type")
@@ -138,7 +138,7 @@ def organizer_dashboard(request):
         "today": todayEvents,
         "categories": categories,
     }
-    return render(request, "dashboard/organizer-dashboard.html", context)
+    return render(request, "dashboard.html", context)
 
 
 def view_all(request):
@@ -149,17 +149,17 @@ def view_all(request):
             events_count=models.Count("events", distinct=True)
         )
         context = {"title": "Participant", "participants": participants}
-        return render(request, "dashboard/view/participant-view.html", context)
+        return render(request, "view/participant-view.html", context)
     elif type == "category":
         categories = Category.objects.prefetch_related("events").annotate(
             events_count=models.Count("events", distinct=True)
         )
         context = {"title": "Category", "categories": categories}
-        return render(request, "dashboard/view/category-view.html", context)
+        return render(request, "view/category-view.html", context)
     else:
         events = Event.objects.select_related("category").all()
         context = {"title": "Event", "events": events}
-        return render(request, "dashboard/view/event-view.html", context)
+        return render(request, "view/event-view.html", context)
 
 
 def create_form(request):
@@ -180,7 +180,7 @@ def create_form(request):
                 return redirect(f"{reverse('create-form')}?type=participant")
 
         context = {"title": "Create Participant", "participant_form": participant_form}
-        return render(request, "dashboard/form/create-participant.html", context)
+        return render(request, "form/create-participant.html", context)
     elif type == "category":
         category_form = CategoryModelForm()
 
@@ -196,7 +196,7 @@ def create_form(request):
                 return redirect(f"{reverse('create-form')}?type=category")
 
         context = {"title": "Create Category", "category_form": category_form}
-        return render(request, "dashboard/form/create-category.html", context)
+        return render(request, "form/create-category.html", context)
     else:
         event_form = EventModelForm()
 
@@ -212,7 +212,7 @@ def create_form(request):
                 return redirect(f"{reverse('create-form')}?type=event")
 
         context = {"title": "Create Event", "event_form": event_form}
-        return render(request, "dashboard/form/create-event.html", context)
+        return render(request, "form/create-event.html", context)
 
 
 def update_form(request, id):
@@ -234,7 +234,7 @@ def update_form(request, id):
                 return redirect(f"{reverse('update-form', args=[id])}?type=participant")
 
         context = {"title": "Update Participant", "participant_form": participant_form}
-        return render(request, "dashboard/form/create-participant.html", context)
+        return render(request, "form/create-participant.html", context)
     elif type == "category":
         category = Category.objects.get(id=id)
         category_form = CategoryModelForm(instance=category)
@@ -251,7 +251,7 @@ def update_form(request, id):
                 return redirect(f"{reverse('update-form', args=[id])}?type=category")
 
         context = {"title": "Update Category", "category_form": category_form}
-        return render(request, "dashboard/form/create-category.html", context)
+        return render(request, "form/create-category.html", context)
     else:
         event = Event.objects.get(id=id)
         event_form = EventModelForm(instance=event)
@@ -268,7 +268,7 @@ def update_form(request, id):
                 return redirect(f"{reverse('update-form', args=[id])}?type=event")
 
         context = {"title": "Update Event", "event_form": event_form}
-        return render(request, "dashboard/form/create-event.html", context)
+        return render(request, "form/create-event.html", context)
 
 
 def delete(request, id):

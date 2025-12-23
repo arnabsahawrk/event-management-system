@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>
+      {% block title %}
+
+      {% endblock %}
+    </title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% include 'css_loader.html' %}
+  </head>
+
+  <body class="bg-gray-50 min-h-screen text-gray-900 flex flex-col antialiased">
+    <!-- Navbar -->
+    <header>
+      {% include 'home-nav.html' %}
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      {% block home_layout %}
+
+      {% endblock %}
+    </main>
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4">
+      <div class="max-w-7xl mx-auto px-6 text-center">
+        <p class="text-sm text-gray-600">© 2025 Arnab Saha — Event Management System</p>
+      </div>
+    </footer>
+  </body>
+</html>
