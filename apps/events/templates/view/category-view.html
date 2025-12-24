@@ -4,8 +4,8 @@
   <div class="space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <p class="flex flex-wrap gap-4 justify-self-start">
-        <a href="{% url 'dashboard' %}" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
-        <a href="{% url 'create-form' %}?type=category" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Create Category</a>
+        <a href="{% url 'events:dashboard' %}" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
+        <a href="{% url 'events:create-form' %}?type=category" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Create Category</a>
       </p>
       {% if messages %}
         <p class="space-y-2 justify-self-end-safe">
@@ -51,8 +51,8 @@
             {% endif %}
 
             <div class="flex flex-wrap gap-4 pt-3">
-              <a href="{% url 'update-form' category.id %}?type=category" class="px-4 py-2 rounded font-medium bg-green-900 text-white text-lg">Update</a>
-              <form action="{% url 'delete' category.id %}?type=category" method="post">
+              <a href="{% url 'events:update-form' category.id %}?type=category" class="px-4 py-2 rounded font-medium bg-green-900 text-white text-lg">Update</a>
+              <form action="{% url 'events:delete' category.id %}?type=category" method="post">
                 {% csrf_token %}
                 <button type="submit" class="px-4 py-2 rounded font-medium bg-red-900 text-white text-lg">Delete</button>
               </form>

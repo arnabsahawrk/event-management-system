@@ -4,15 +4,15 @@
     <div class="h-16 flex items-center justify-between gap-4">
       <!-- Left: Title -->
       <div class="flex-shrink-0">
-        <a href="{% url 'home' %}" class="text-lg font-semibold tracking-wide">Event Management System</a>
+        <a href="{% url 'core:home' %}" class="text-lg font-semibold tracking-wide">Event Management System</a>
       </div>
 
       <!-- Center: Navigation (Desktop) -->
       <div class="hidden lg:flex items-center gap-6">
-        <a href="{% url 'dashboard' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Dashboard</a>
-        <a href="{% url 'view-all' %}?type=event" class="text-sm font-medium text-gray-700 hover:text-blue-600">Events</a>
-        <a href="{% url 'view-all' %}?type=category" class="text-sm font-medium text-gray-700 hover:text-blue-600">Categories</a>
-        <a href="{% url 'view-all' %}?type=participant" class="text-sm font-medium text-gray-700 hover:text-blue-600">Participants</a>
+        <a href="{% url 'events:dashboard' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Dashboard</a>
+        <a href="{% url 'events:view-all' %}?type=event" class="text-sm font-medium text-gray-700 hover:text-blue-600">Events</a>
+        <a href="{% url 'events:view-all' %}?type=category" class="text-sm font-medium text-gray-700 hover:text-blue-600">Categories</a>
+        <a href="{% url 'events:view-all' %}?type=participant" class="text-sm font-medium text-gray-700 hover:text-blue-600">Participants</a>
         <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">Users</a>
         <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">Groups</a>
         <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">RSVP</a>
@@ -20,7 +20,7 @@
 
       <!-- Right: Action Buttons -->
       <div class="flex items-center gap-3">
-        <form action="{% url 'logout' %}" method="post">
+        <form action="{% url 'accounts:logout' %}" method="post">
           {% csrf_token %}
           <button type="submit" class="hidden lg:inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition">Logout</button>
         </form>
@@ -39,10 +39,10 @@
   <div id="dashboard-mobile-menu" class="lg:hidden hidden border-t border-gray-200 bg-white">
     <div class="px-4 py-4 flex flex-col gap-3">
       <!-- Navigation Links -->
-      <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
-      <a href="{% url 'view-all' %}?type=event" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Events</a>
-      <a href="{% url 'view-all' %}?type=category" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Categories</a>
-      <a href="{% url 'view-all' %}?type=participant" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Participants</a>
+      <a href="{% url 'events:dashboard' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
+      <a href="{% url 'events:view-all' %}?type=event" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Events</a>
+      <a href="{% url 'events:view-all' %}?type=category" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Categories</a>
+      <a href="{% url 'events:view-all' %}?type=participant" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Participants</a>
       <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Users</a>
       <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Groups</a>
       <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">RSVP</a>
@@ -51,7 +51,7 @@
       <div class="border-t border-gray-200 my-2"></div>
 
       <!-- Action -->
-      <form action="{% url 'logout' %}" method="post">
+      <form action="{% url 'accounts:logout' %}" method="post">
         {% csrf_token %}
         <button type="submit" class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 w-full">Logout</button>
       </form>

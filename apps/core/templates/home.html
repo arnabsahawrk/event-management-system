@@ -14,10 +14,10 @@
         <p class="mt-5 text-gray-600 text-lg">A modern event management platform with authentication, role-based access, and RSVP functionality — built with Django.</p>
 
         <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
-          <a href="{% url 'dashboard' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">Browse Events</a>
+          <a href="{% url 'events:dashboard' %}" class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">Browse Events</a>
 
           {% if not user.is_authenticated %}
-            <a href="{% url 'register' %}" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition">Create Account</a>
+            <a href="{% url 'accounts:register' %}" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition">Create Account</a>
           {% endif %}
         </div>
       </div>

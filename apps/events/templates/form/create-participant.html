@@ -3,7 +3,7 @@
 {% block create %}
   <div class="space-y-6">
     <p>
-      <a href="{% url 'view-all' %}?type=participant" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
+      <a href="{% url 'events:view-all' %}?type=participant" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
     </p>
     <div class="lg:w-1/2 mx-auto">
       {% if messages %}

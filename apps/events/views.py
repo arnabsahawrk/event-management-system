@@ -174,10 +174,10 @@ def create_form(request):
             if participant_form.is_valid():
                 participant_form.save()
                 messages.success(request, "Participant created successfully")
-                return redirect(f"{reverse('create-form')}?type=participant")
+                return redirect(f"{reverse('events:create-form')}?type=participant")
             else:
                 messages.error(request, "Something went wrong")
-                return redirect(f"{reverse('create-form')}?type=participant")
+                return redirect(f"{reverse('events:create-form')}?type=participant")
 
         context = {"title": "Create Participant", "participant_form": participant_form}
         return render(request, "form/create-participant.html", context)
@@ -190,10 +190,10 @@ def create_form(request):
             if category_form.is_valid():
                 category_form.save()
                 messages.success(request, "Category created successfully")
-                return redirect(f"{reverse('create-form')}?type=category")
+                return redirect(f"{reverse('events:create-form')}?type=category")
             else:
                 messages.error(request, "Something went wrong")
-                return redirect(f"{reverse('create-form')}?type=category")
+                return redirect(f"{reverse('events:create-form')}?type=category")
 
         context = {"title": "Create Category", "category_form": category_form}
         return render(request, "form/create-category.html", context)
@@ -206,10 +206,10 @@ def create_form(request):
             if event_form.is_valid():
                 event_form.save()
                 messages.success(request, "Event created successfully")
-                return redirect(f"{reverse('create-form')}?type=event")
+                return redirect(f"{reverse('events:create-form')}?type=event")
             else:
                 messages.error(request, "Something went wrong")
-                return redirect(f"{reverse('create-form')}?type=event")
+                return redirect(f"{reverse('events:create-form')}?type=event")
 
         context = {"title": "Create Event", "event_form": event_form}
         return render(request, "form/create-event.html", context)
@@ -228,10 +228,10 @@ def update_form(request, id):
             if participant_form.is_valid():
                 participant_form.save()
                 messages.success(request, "Participant updated successfully")
-                return redirect(f"{reverse('update-form', args=[id])}?type=participant")
+                return redirect(f"{reverse('events:update-form', args=[id])}?type=participant")
             else:
                 messages.error(request, "Something went wrong")
-                return redirect(f"{reverse('update-form', args=[id])}?type=participant")
+                return redirect(f"{reverse('events:update-form', args=[id])}?type=participant")
 
         context = {"title": "Update Participant", "participant_form": participant_form}
         return render(request, "form/create-participant.html", context)
@@ -245,10 +245,10 @@ def update_form(request, id):
             if category_form.is_valid():
                 category_form.save()
                 messages.success(request, "Category updated successfully")
-                return redirect(f"{reverse('update-form', args=[id])}?type=category")
+                return redirect(f"{reverse('events:update-form', args=[id])}?type=category")
             else:
                 messages.error(request, "Something went wrong")
-                return redirect(f"{reverse('update-form', args=[id])}?type=category")
+                return redirect(f"{reverse('events:update-form', args=[id])}?type=category")
 
         context = {"title": "Update Category", "category_form": category_form}
         return render(request, "form/create-category.html", context)
@@ -262,10 +262,10 @@ def update_form(request, id):
             if event_form.is_valid():
                 event_form.save()
                 messages.success(request, "Event updated successfully")
-                return redirect(f"{reverse('update-form', args=[id])}?type=event")
+                return redirect(f"{reverse('events:update-form', args=[id])}?type=event")
             else:
                 messages.error(request, "Something went wrong")
-                return redirect(f"{reverse('update-form', args=[id])}?type=event")
+                return redirect(f"{reverse('events:update-form', args=[id])}?type=event")
 
         context = {"title": "Update Event", "event_form": event_form}
         return render(request, "form/create-event.html", context)
@@ -279,25 +279,25 @@ def delete(request, id):
             participant = Participant.objects.get(id=id)
             participant.delete()
             messages.success(request, "Participant deleted successfully")
-            return redirect(f"{reverse('view-all')}?type=participant")
+            return redirect(f"{reverse('events:view-all')}?type=participant")
         else:
             messages.error(request, "Something went wrong")
-            return redirect(f"{reverse('view-all')}?type=participant")
+            return redirect(f"{reverse('events:view-all')}?type=participant")
     elif type == "category":
         if request.method == "POST":
             category = Category.objects.get(id=id)
             category.delete()
             messages.success(request, "Category deleted successfully")
-            return redirect(f"{reverse('view-all')}?type=category")
+            return redirect(f"{reverse('events:view-all')}?type=category")
         else:
             messages.error(request, "Something went wrong")
-            return redirect(f"{reverse('view-all')}?type=category")
+            return redirect(f"{reverse('events:view-all')}?type=category")
     else:
         if request.method == "POST":
             event = Event.objects.get(id=id)
             event.delete()
             messages.success(request, "Event deleted successfully")
-            return redirect(f"{reverse('view-all')}?type=event")
+            return redirect(f"{reverse('events:view-all')}?type=event")
         else:
             messages.error(request, "Something went wrong")
-            return redirect(f"{reverse('view-all')}?type=event")
+            return redirect(f"{reverse('events:view-all')}?type=event")

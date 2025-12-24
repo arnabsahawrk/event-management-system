@@ -8,6 +8,7 @@ from apps.events.views import (
     view_all,
 )
 
+app_name = "events"
 urlpatterns = [
     path("dashboard/", dashboard, name="dashboard"),
     path("view-all/", view_all, name="view-all"),
