@@ -6,14 +6,6 @@
 
 {% block dashboard_layout %}
   <section class="max-w-7xl mx-auto px-6 py-10 space-y-10">
-    <div class="flex flex-col items-center space-y-4 flex-shrink">
-      <div class="flex flex-shrink justify-center items-center gap-4">
-        <a href="{% url 'view-all' %}?type=event" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">Event</a>
-        <a href="{% url 'view-all' %}?type=participant" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">Participant</a>
-        <a href="{% url 'view-all' %}?type=category" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">Category</a>
-      </div>
-    </div>
-
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <button class="p-6 bg-white border rounded-xl shadow hover:shadow-md transition text-left cursor-auto">
         <h3 class="text-sm font-medium text-gray-500">Total Participants</h3>
