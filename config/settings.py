@@ -162,6 +162,10 @@ if not DEBUG:
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+FRONTEND_URL = os.environ.get("FRONTEND_URL")
+
+LOGIN_URL = "accounts:login"
+
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True

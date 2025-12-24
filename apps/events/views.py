@@ -219,7 +219,9 @@ def update_form(request, id):
         participant = Participant.objects.get(id=id)
 
         if request.method == "POST":
-            participant_form = ParticipantModelForm(request.POST, instance=participant)
+            participant_form = ParticipantModelForm(
+                request.POST, request.FILES, instance=participant
+            )
 
             if participant_form.is_valid():
                 participant_form.save()

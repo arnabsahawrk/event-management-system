@@ -2,6 +2,8 @@ from django.shortcuts import redirect, render
 from apps.accounts.forms import CustomRegistrationForm, LoginForm
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 
 
 def register(request):
@@ -41,10 +43,17 @@ def login(request):
     return render(request, "login.html", {"login_form": login_form})
 
 
-# TODO: permission not grated for login user
+@login_required
 def logout(request):
     if request.method == "POST":
         auth_logout(request)
         return redirect("accounts:login")
     else:
         return redirect("core:home")
+
+
+def group_list(request):
+    groups = Group.objects.prefetch_related("permissions").all()
+    return render(
+        request, "admin/view/group-list.html", {"groups": groups, "title": "Group List"}
+    )
