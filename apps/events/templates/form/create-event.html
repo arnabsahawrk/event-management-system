@@ -20,10 +20,20 @@
         </div>
       {% endif %}
 
-      <form method="post" class="space-y-4">
+      <form method="post" enctype="multipart/form-data" class="space-y-4">
         {% csrf_token %}
-        {{ event_form }}
-        <button type="submit" class="px-5 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition w-full font-medium">Submit</button>
+
+        {% for field in event_form %}
+          <div>
+            {{ field.label_tag }}
+            {{ field }}
+
+            {% if field.errors %}
+              <p class="text-sm text-red-600 mt-1">{{ field.errors|striptags }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition w-full font-medium">Submit</button>
       </form>
     </div>
   </div>

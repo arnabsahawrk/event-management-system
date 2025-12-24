@@ -9,6 +9,10 @@ class Event(models.Model):
     event_time = models.TimeField()
     location = models.CharField(max_length=100)
 
+    image = models.ImageField(
+        upload_to="events/", default="events/default.jpg", blank=True
+    )
+
     category = models.ForeignKey(
         "Category", on_delete=models.SET_NULL, null=True, related_name="events"
     )

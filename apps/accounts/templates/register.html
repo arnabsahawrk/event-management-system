@@ -29,14 +29,11 @@
           {% csrf_token %}
           {% for field in register_form %}
             <div>
-              <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+              {{ field.label_tag }}
               {{ field }}
+
               {% if field.errors %}
-                <ul>
-                  {% for error in field.errors %}
-                    <li>{{ error }}</li>
-                  {% endfor %}
-                </ul>
+                <p class="text-sm text-red-600 mt-1">{{ field.errors|striptags }}</p>
               {% endif %}
             </div>
           {% endfor %}
@@ -44,7 +41,7 @@
           {% if register_form.non_field_errors %}
             <div>
               {% for error in register_form.non_field_errors %}
-                <p>{{ error }}</p>
+                <p class="text-sm text-red-600 mt-1">{{ error }}</p>
               {% endfor %}
             </div>
           {% endif %}

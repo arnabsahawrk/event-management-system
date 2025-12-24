@@ -1,20 +1,20 @@
-from typing import TYPE_CHECKING
-from django.forms.widgets import (
+from django import forms
+from django.forms import (
     TextInput,
+    EmailInput,
+    PasswordInput,
     Textarea,
     Select,
     SelectMultiple,
     CheckboxSelectMultiple,
     DateInput,
     TimeInput,
-    EmailInput,
-    PasswordInput,
+    ClearableFileInput,
 )
-from django import forms
+from typing import TYPE_CHECKING
 
 
 class StyledFormMixin:
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.apply_styled_widgets()
@@ -40,6 +40,7 @@ class StyledFormMixin:
                         ),
                     }
                 )
+
             elif isinstance(widget, Textarea):
                 widget.attrs.update(
                     {
@@ -50,29 +51,52 @@ class StyledFormMixin:
                         "rows": widget.attrs.get("rows", 4),
                     }
                 )
+
             elif isinstance(widget, Select):
                 widget.attrs.update(
                     {
-                        "class": "border-2 border-gray-300 p-3 rounded-lg shadow-sm focus:outline-none "
-                        "focus:border-rose-500 focus:ring-rose-500 w-full",
+                        "class": (
+                            "border-2 border-gray-300 p-3 rounded-lg shadow-sm "
+                            "focus:outline-none focus:border-rose-500 focus:ring-rose-500 w-full"
+                        ),
                     }
                 )
+
             elif isinstance(widget, (SelectMultiple, CheckboxSelectMultiple)):
-                if isinstance(widget, CheckboxSelectMultiple):
-                    widget.attrs.update({"class": "space-y-2"})
-                else:
-                    widget.attrs.update(
-                        {"class": "w-full p-2 rounded-lg border border-gray-300"}
-                    )
+                widget.attrs.update(
+                    {
+                        "class": (
+                            "space-y-2"
+                            if isinstance(widget, CheckboxSelectMultiple)
+                            else "w-full p-2 rounded-lg border border-gray-300"
+                        )
+                    }
+                )
+
             elif isinstance(widget, (DateInput, TimeInput)):
                 widget.attrs.update(
                     {
                         "class": "border-2 border-gray-300 p-2 rounded-lg shadow-sm focus:outline-none"
                     }
                 )
+
+            elif isinstance(widget, ClearableFileInput):
+                widget.attrs.update(
+                    {
+                        "class": (
+                            "block w-full text-sm text-gray-700 "
+                            "file:mr-4 file:py-2 file:px-4 "
+                            "file:rounded-lg file:border-0 "
+                            "file:text-sm file:font-medium "
+                            "file:bg-blue-50 file:text-blue-700 "
+                            "hover:file:bg-blue-100"
+                        ),
+                        "accept": "image/*",
+                    }
+                )
+
             else:
                 existing = widget.attrs.get("class", "")
-                if "border-2" not in existing:
-                    widget.attrs.update(
-                        {"class": f"{existing} {self.default_classes}".strip()}
-                    )
+                widget.attrs.update(
+                    {"class": f"{existing} {self.default_classes}".strip()}
+                )

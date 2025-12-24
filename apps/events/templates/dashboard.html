@@ -89,6 +89,7 @@
         {% if events %}
           {% for event in events %}
             <div class="p-6 bg-white border rounded-xl shadow-sm space-y-3 hover:shadow-md transition">
+              <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full h-full max-h-40 rounded-xl object-center" />
               <h4 class="text-xl font-semibold mb-3">
                 {{ event.name }}
                 {% if event.day_status == 'Today' %}

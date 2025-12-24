@@ -17,24 +17,26 @@ def register(request):
             user.save()
             messages.success(request, "Registration successful! Please log in.")
             return redirect("accounts:login")
-        else:
-            messages.error(request, "Please correct the errors below.")
+        messages.error(request, "Please correct the errors below.")
+    else:
+        register_form = CustomRegistrationForm()
 
-    register_form = CustomRegistrationForm()
-    return render(request, "accounts:register.html", {"register_form": register_form})
+    return render(request, "register.html", {"register_form": register_form})
 
 
 def login(request):
     if request.user.is_authenticated:
         return redirect("core:home")
 
-    login_form = LoginForm()
     if request.method == "POST":
         login_form = LoginForm(data=request.POST)
         if login_form.is_valid():
             user = login_form.get_user()
             auth_login(request, user)
             return redirect("core:home")
+        messages.error(request, "Please correct the errors below.")
+    else:
+        login_form = LoginForm()
 
     return render(request, "login.html", {"login_form": login_form})
 
