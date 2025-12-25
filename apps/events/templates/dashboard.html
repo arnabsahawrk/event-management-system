@@ -1,4 +1,5 @@
 {% extends 'dashboard-layout.html' %}
+{% load static %}
 
 {% block title %}
   Dashboard - Event Management System
@@ -90,9 +91,9 @@
           {% for event in events %}
             <div class="p-6 bg-white border rounded-xl shadow-sm space-y-3 hover:shadow-md transition">
               {% if event.image %}
-                <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full max-h-40 rounded-xl object-cover" />
+                <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full max-h-40 rounded-xl object-cover" onerror="this.src='{% static 'events/default.jpg' %}'" />
               {% else %}
-                <img src="media/events/default.jpg" alt="Default Event Image" class="w-full max-h-40 rounded-xl object-cover" />
+                <img src="{% static 'events/default.jpg' %}" alt="Default Event Image" class="w-full max-h-40 rounded-xl object-cover" />
               {% endif %}
 
               <h4 class="text-xl font-semibold mb-3">

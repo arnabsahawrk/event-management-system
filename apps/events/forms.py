@@ -24,11 +24,17 @@ class EventModelForm(StyledFormMixin, forms.ModelForm):
             "category": forms.Select,
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["image"].required = False
+
     def clean_image(self):
         image = self.cleaned_data.get("image")
 
         if not image:
-            return image
+            if self.instance and self.instance.pk:
+                return self.instance.image
+            return None
 
         if isinstance(image, str):
             return image
@@ -37,15 +43,15 @@ class EventModelForm(StyledFormMixin, forms.ModelForm):
             max_size = 100 * 1024
 
             if image.size > max_size:
-                raise ValidationError("Image size must be 100 KB or less.")
+                raise ValidationError("Image size must be 100KB or less.")
 
-            valid_mime_types = ["image/jpeg", "image/png", "image/webp"]
+            valid_mime_types = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
             if image.content_type not in valid_mime_types:
                 raise ValidationError("Only JPG, PNG, or WEBP images are allowed.")
 
             return image
 
-        raise ValidationError("Invalid image upload.")
+        return None
 
 
 class ParticipantModelForm(StyledFormMixin, forms.ModelForm):

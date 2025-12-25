@@ -35,13 +35,26 @@
         {% for field in event_form %}
           <div>
             {{ field.label_tag }}
+            {% if field.name == 'image' and event_form.instance.pk and event_form.instance.image %}
+              <div class="mb-2 p-2 bg-gray-100 rounded">
+                <p class="text-sm text-gray-600 mb-1">Current image:</p>
+                <img src="{{ event_form.instance.image.url }}" alt="Current" class="h-20 w-auto rounded object-cover" />
+                <p class="text-xs text-gray-500 mt-1">Check "Clear" below and save to remove this image</p>
+              </div>
+            {% endif %}
+
             {{ field }}
 
             {% if field.errors %}
               <p class="text-sm text-red-600 mt-1">{{ field.errors|striptags }}</p>
             {% endif %}
+
+            {% if field.name == 'image' %}
+              <p class="text-xs text-gray-500 mt-1">Max size: 100KB. Formats: JPG, PNG, WEBP</p>
+            {% endif %}
           </div>
         {% endfor %}
+
         <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition w-full font-medium">Submit</button>
       </form>
     </div>

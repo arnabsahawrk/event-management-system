@@ -219,9 +219,7 @@ def update_form(request, id):
         participant = Participant.objects.get(id=id)
 
         if request.method == "POST":
-            participant_form = ParticipantModelForm(
-                request.POST, request.FILES, instance=participant
-            )
+            participant_form = ParticipantModelForm(request.POST, instance=participant)
 
             if participant_form.is_valid():
                 participant_form.save()
@@ -235,6 +233,7 @@ def update_form(request, id):
 
         context = {"title": "Update Participant", "participant_form": participant_form}
         return render(request, "form/create-participant.html", context)
+
     elif type == "category":
         category = Category.objects.get(id=id)
 
@@ -253,11 +252,12 @@ def update_form(request, id):
 
         context = {"title": "Update Category", "category_form": category_form}
         return render(request, "form/create-category.html", context)
+
     else:
         event = Event.objects.get(id=id)
 
         if request.method == "POST":
-            event_form = EventModelForm(request.POST, instance=event)
+            event_form = EventModelForm(request.POST, request.FILES, instance=event)
 
             if event_form.is_valid():
                 event_form.save()
@@ -265,7 +265,8 @@ def update_form(request, id):
                 return redirect(
                     f"{reverse('events:update-form', args=[id])}?type=event"
                 )
-            messages.error(request, "Please correct the errors below.")
+            else:
+                messages.error(request, "Please correct the errors below.")
         else:
             event_form = EventModelForm(instance=event)
 
