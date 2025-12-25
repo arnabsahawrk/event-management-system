@@ -35,7 +35,7 @@ def login(request):
         if login_form.is_valid():
             user = login_form.get_user()
             auth_login(request, user)
-            return redirect("core:home")
+            return redirect("events:dashboard")
         messages.error(request, "Please correct the errors below.")
     else:
         login_form = LoginForm()

@@ -9,8 +9,8 @@
   <section class="max-w-7xl mx-auto px-6 py-10 space-y-10">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <button class="p-6 bg-white border rounded-xl shadow hover:shadow-md transition text-left cursor-auto">
-        <h3 class="text-sm font-medium text-gray-500">Total Participants</h3>
-        <p class="text-3xl font-bold mt-2">{{ count.total_participants }}</p>
+        <h3 class="text-sm font-medium text-gray-500">Total RSVP</h3>
+        <p class="text-3xl font-bold mt-2">{{ count.total_rsvps }}</p>
       </button>
       <button class="p-6 bg-white border rounded-xl shadow hover:shadow-md transition text-left cursor-auto">
         <h3 class="text-sm font-medium text-gray-500">Total Events</h3>
@@ -86,14 +86,14 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {% if events %}
           {% for event in events %}
             <div class="p-6 bg-white border rounded-xl shadow-sm space-y-3 hover:shadow-md transition">
               {% if event.image %}
-                <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full max-h-40 rounded-xl object-cover" onerror="this.src='{% static 'events/default.jpg' %}'" />
+                <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full max-h-40 rounded-xl object-center" onerror="this.src='{% static 'events/default.jpg' %}'" />
               {% else %}
-                <img src="{% static 'events/default.jpg' %}" alt="Default Event Image" class="w-full max-h-40 rounded-xl object-cover" />
+                <img src="{% static 'events/default.jpg' %}" alt="Default Event Image" class="w-full max-h-40 rounded-xl object-center" />
               {% endif %}
 
               <h4 class="text-xl font-semibold mb-3">
@@ -115,6 +115,12 @@
                 <button class="px-2 py-1 rounded bg-gray-200 cursor-auto">Time : {{ event.event_time }}</button>
                 <button class="px-2 py-1 rounded bg-gray-200 cursor-auto">Created At : {{ event.created_at|timesince }}</button>
               </p>
+              {% if event.day_status != 'Past' %}
+                <form method="post" action="{% url 'events:rsvp' event.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">RSVP</button>
+                </form>
+              {% endif %}
             </div>
           {% endfor %}
         {% else %}

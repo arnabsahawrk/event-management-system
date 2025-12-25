@@ -15,7 +15,7 @@
         <a href="{% url 'events:view-all' %}?type=participant" class="text-sm font-medium text-gray-700 hover:text-blue-600">Participants</a>
         <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">Users</a>
         <a href="{% url 'accounts:group-list' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Groups</a>
-        <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">RSVP</a>
+        <a href="{% url 'events:rsvp-view' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">RSVP</a>
       </div>
 
       <!-- Right: Action Buttons -->
@@ -45,7 +45,7 @@
       <a href="{% url 'events:view-all' %}?type=participant" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Participants</a>
       <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Users</a>
       <a href="{% url 'accounts:group-list' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Groups</a>
-      <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">RSVP</a>
+      <a href="{% url 'events:rsvp-view' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">RSVP</a>
 
       <!-- Divider -->
       <div class="border-t border-gray-200 my-2"></div>

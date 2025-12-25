@@ -1,0 +1,97 @@
+{% extends 'dashboard-layout.html' %}
+{% load static %}
+
+{% block title %}
+  {{ title }} - Event Management System
+{% endblock %}
+
+{% block dashboard_layout %}
+  <section class="max-w-7xl mx-auto px-6 py-10 space-y-8">
+    <!-- Header / Back -->
+    <p>
+      <a href="{% url 'events:dashboard' %}" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
+    </p>
+
+    <!-- Messages -->
+    {% if messages %}
+      <div class="space-y-2">
+        {% for message in messages %}
+          {% if message.tags == 'success' %}
+            <div class="flex items-start gap-2 p-3 rounded-lg bg-green-100 border border-green-300 text-green-800 text-sm font-medium">
+              <span class="font-bold">✓</span>
+              <span>{{ message }}</span>
+            </div>
+          {% elif message.tags == 'error' %}
+            <div class="flex items-start gap-2 p-3 rounded-lg bg-red-100 border border-red-300 text-red-800 text-sm font-medium">
+              <span class="font-bold">✕</span>
+              <span>{{ message }}</span>
+            </div>
+          {% else %}
+            <div class="flex items-start gap-2 p-3 rounded-lg bg-blue-100 border border-blue-300 text-blue-800 text-sm font-medium">
+              <span class="font-bold">ℹ</span>
+              <span>{{ message }}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- RSVP LIST -->
+    {% if rsvps %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for rsvp in rsvps %}
+          <!-- RSVP CARD -->
+          <div class="p-6 bg-white border border-gray-400 rounded-xl shadow-sm space-y-3 hover:shadow-md transition">
+            <!-- Event Image -->
+            {% if rsvp.event.image %}
+              <img src="{{ rsvp.event.image.url }}" alt="{{ rsvp.event.name }}" class="w-full max-h-40 rounded-xl object-center" onerror="this.src='{% static 'events/default.jpg' %}'" />
+            {% else %}
+              <img src="{% static 'events/default.jpg' %}" alt="Default Event Image" class="w-full max-h-40 rounded-xl object-center" />
+            {% endif %}
+
+            <!-- Title + Day Status -->
+            <h4 class="text-xl font-semibold mb-3">
+              {{ rsvp.event.name }}
+              {% if rsvp.event.day_status == 'Today' %}
+                <span class="ml-2 px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">{{ rsvp.event.day_status }}</span>
+              {% elif rsvp.event.day_status == 'Upcoming' %}
+                <span class="ml-2 px-2 py-1 text-xs rounded bg-green-100 text-green-700">{{ rsvp.event.day_status }}</span>
+              {% else %}
+                <span class="ml-2 px-2 py-1 text-xs rounded bg-red-100 text-red-700">{{ rsvp.event.day_status }}</span>
+              {% endif %}
+            </h4>
+
+            <!-- Description -->
+            <p class="text-gray-500 text-sm">{{ rsvp.event.description }}</p>
+
+            <!-- Meta Info -->
+            <p class="text-sm text-black mt-1 font-medium flex flex-wrap gap-3">
+              <span class="px-2 py-1 rounded bg-gray-200 cursor-default">Category : {{ rsvp.event.category.name }}</span>
+              <span class="px-2 py-1 rounded bg-gray-200 cursor-default">Location : {{ rsvp.event.location }}</span>
+              <span class="px-2 py-1 rounded bg-gray-200 cursor-default">Date : {{ rsvp.event.event_date }}</span>
+              <span class="px-2 py-1 rounded bg-gray-200 cursor-default">Time : {{ rsvp.event.event_time }}</span>
+              <span class="px-2 py-1 rounded bg-gray-200 cursor-default">RSVPed : {{ rsvp.event.created_at|timesince }}</span>
+            </p>
+
+            <!-- Actions -->
+            {% if rsvp.event.day_status != 'Past' %}
+              <div class="pt-3">
+                <form method="post" action="{% url 'events:rsvp-delete' rsvp.id %}" class="w-full text-right">
+                  {% csrf_token %}
+                  <button class="text-sm font-medium text-red-600 hover:underline">Cancel RSVP</button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <!-- EMPTY STATE -->
+      <div class="flex flex-col items-center justify-center text-center py-20 bg-white border rounded-xl">
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">No RSVPs Yet</h3>
+        <p class="text-gray-500 mb-6 max-w-md">You haven’t RSVPed to any events yet. Browse events and confirm your attendance to see them here.</p>
+        <a href="{% url 'events:dashboard' %}?type=all_events" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Browse Events</a>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

@@ -1,13 +1,14 @@
 from django.db import models
 from django.db.models import Case, IntegerField, Value, When
 from django.db.models.functions import Extract
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 
 from apps.events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
-from apps.events.models import Category, Event, Participant
+from apps.events.models import RSVP, Category, Event, Participant
+from django.contrib.auth.decorators import login_required
 
 
 def dashboard(request):
@@ -16,7 +17,7 @@ def dashboard(request):
     type = request.GET.get("type")
 
     counts = Event.objects.aggregate(
-        total_participants=models.Count("participants", distinct=True),
+        total_rsvps=models.Count("rsvps", distinct=True),
         total_events=models.Count("id", distinct=True),
         upcoming_events=models.Count(
             "id", filter=models.Q(event_date__gt=today), distinct=True
@@ -304,3 +305,73 @@ def delete(request, id):
         else:
             messages.error(request, "Something went wrong. try again.")
             return redirect(f"{reverse('events:view-all')}?type=event")
+
+
+@login_required
+def rsvp_view(request):
+    today = timezone.now().date()
+
+    rsvps = (
+        RSVP.objects.select_related("event")
+        .filter(user=request.user)
+        .annotate(
+            sort_group=Case(
+                When(event__event_date__gte=today, then=Value(0)),
+                When(event__event_date__lt=today, then=Value(1)),
+                output_field=IntegerField(),
+            ),
+            sort_date=Case(
+                When(
+                    event__event_date__gte=today,
+                    then=Extract("event__event_date", lookup_name="epoch"),
+                ),
+                When(
+                    event__event_date__lt=today,
+                    then=-Extract("event__event_date", lookup_name="epoch"),
+                ),
+                output_field=IntegerField(),
+            ),
+        )
+        .order_by("sort_group", "sort_date")
+    )
+
+    context = {
+        "title": "RSVP",
+        "rsvps": rsvps,
+    }
+    return render(request, "view/rsvp-view.html", context)
+
+
+@login_required
+def rsvp_events(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+
+    if event.day_status == "Past":
+        messages.info(request, "This event has passed away.")
+    elif request.method == "POST":
+        rsvp, created = RSVP.objects.get_or_create(user=request.user, event=event)
+
+        if created:
+            messages.success(
+                request,
+                f"RSVP confirmed for {event.name}! A confirmation email has been sent to your mail address.",
+            )
+        else:
+            messages.info(request, f"You have already RSVPed for {event.name}.")
+    else:
+        messages.error(request, "Something went wrong. try again.")
+
+    return redirect("events:rsvp-view")
+
+
+@login_required
+def rsvp_delete(request, id):
+    if request.method == "POST":
+        rsvp = RSVP.objects.get(id=id)
+
+        rsvp.delete()
+        messages.success(request, "RSVP canceled successfully.")
+    else:
+        messages.error(request, "Something went wrong. try again.")
+
+    return redirect("events:rsvp-view")

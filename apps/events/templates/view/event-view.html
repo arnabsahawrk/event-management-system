@@ -35,14 +35,14 @@
         </div>
       {% endif %}
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {% if events %}
         {% for event in events %}
           <div class="p-6 bg-white border rounded-xl shadow-sm space-y-3 hover:shadow-md transition">
             {% if event.image %}
-              <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full max-h-40 rounded-xl object-cover" onerror="this.src='{% static 'events/default.jpg' %}'" />
+              <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full max-h-40 rounded-xl object-center" onerror="this.src='{% static 'events/default.jpg' %}'" />
             {% else %}
-              <img src="{% static 'events/default.jpg' %}" alt="Default Event Image" class="w-full max-h-40 rounded-xl object-cover" />
+              <img src="{% static 'events/default.jpg' %}" alt="Default Event Image" class="w-full max-h-40 rounded-xl object-center" />
             {% endif %}
 
             <h4 class="text-xl font-semibold mb-3">
