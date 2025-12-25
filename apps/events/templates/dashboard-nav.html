@@ -12,7 +12,7 @@
         <a href="{% url 'events:dashboard' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Dashboard</a>
         <a href="{% url 'events:view-all' %}?type=event" class="text-sm font-medium text-gray-700 hover:text-blue-600">Events</a>
         <a href="{% url 'events:view-all' %}?type=category" class="text-sm font-medium text-gray-700 hover:text-blue-600">Categories</a>
-        <a href="{% url 'events:view-all' %}?type=participant" class="text-sm font-medium text-gray-700 hover:text-blue-600">Participants</a>
+        {% comment %} <a href="{% url 'events:view-all' %}?type=participant" class="text-sm font-medium text-gray-700 hover:text-blue-600">Participants</a> {% endcomment %}
         <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">Users</a>
         <a href="{% url 'accounts:group-list' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Groups</a>
         <a href="{% url 'events:rsvp-view' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">RSVP</a>
@@ -42,7 +42,7 @@
       <a href="{% url 'events:dashboard' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
       <a href="{% url 'events:view-all' %}?type=event" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Events</a>
       <a href="{% url 'events:view-all' %}?type=category" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Categories</a>
-      <a href="{% url 'events:view-all' %}?type=participant" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Participants</a>
+      {% comment %} <a href="{% url 'events:view-all' %}?type=participant" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Participants</a> {% endcomment %}
       <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Users</a>
       <a href="{% url 'accounts:group-list' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Groups</a>
       <a href="{% url 'events:rsvp-view' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">RSVP</a>

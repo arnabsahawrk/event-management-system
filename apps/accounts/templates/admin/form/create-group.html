@@ -3,7 +3,7 @@
 {% block create %}
   <div class="space-y-6">
     <p>
-      <a href="{% url 'events:view-all' %}?type=category" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
+      <a href="{% url 'accounts:group-list' %}" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Back</a>
     </p>
     <div class="lg:w-1/2 mx-auto">
       {% if messages %}
@@ -31,7 +31,13 @@
 
       <form method="post" class="space-y-4">
         {% csrf_token %}
-        {{ category_form }}
+        <div>{{ group_form.name.label_tag }}
+          {{ group_form.name }}</div>
+
+        <div>
+          {{ group_form.permissions.label_tag }}
+          <div class="border rounded-lg p-3 h-64 overflow-y-scroll shadow-inner">{{ group_form.permissions }}</div>
+        </div>
         <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition w-full font-medium">Submit</button>
       </form>
     </div>

@@ -173,7 +173,7 @@ def create_form(request):
             if participant_form.is_valid():
                 participant_form.save()
                 messages.success(request, "Participant created successfully")
-                return redirect(f"{reverse('events:create-form')}?type=participant")
+                return redirect(f"{reverse('events:view-all')}?type=participant")
 
             messages.error(request, "Please correct the errors below.")
         else:
@@ -188,7 +188,7 @@ def create_form(request):
             if category_form.is_valid():
                 category_form.save()
                 messages.success(request, "Category created successfully")
-                return redirect(f"{reverse('events:create-form')}?type=category")
+                return redirect(f"{reverse('events:view-all')}?type=category")
 
             messages.error(request, "Please correct the errors below.")
         else:
@@ -203,7 +203,7 @@ def create_form(request):
             if event_form.is_valid():
                 event_form.save()
                 messages.success(request, "Event created successfully")
-                return redirect(f"{reverse('events:create-form')}?type=event")
+                return redirect(f"{reverse('events:view-all')}?type=event")
 
             messages.error(request, "Please correct the errors below.")
         else:
