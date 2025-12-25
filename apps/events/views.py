@@ -6,11 +6,13 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 
+from apps.core.helpers import is_admin, is_organizer, is_participant
 from apps.events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
 from apps.events.models import RSVP, Category, Event, Participant
 from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def dashboard(request):
     today = timezone.now().date()
 
@@ -133,11 +135,21 @@ def dashboard(request):
             .order_by("sort_group", "sort_date")
         )
 
+    admin_user = is_admin(request.user)
+    organizer_user = is_organizer(request.user)
+    participant_user = is_participant(request.user)
+    users_roles = {
+        "is_admin": admin_user,
+        "is_organizer": organizer_user,
+        "is_participant": participant_user,
+    }
+
     context = {
         "count": counts,
         "events": events,
         "today": todayEvents,
         "categories": categories,
+        "roles": users_roles,
     }
     return render(request, "dashboard.html", context)
 
@@ -349,15 +361,20 @@ def rsvp_events(request, event_id):
     if event.day_status == "Past":
         messages.info(request, "This event has passed away.")
     elif request.method == "POST":
-        rsvp, created = RSVP.objects.get_or_create(user=request.user, event=event)
 
-        if created:
-            messages.success(
-                request,
-                f"RSVP confirmed for {event.name}! A confirmation email has been sent to your mail address.",
-            )
+        if request.user.groups.filter(name="Participant").exists():
+            rsvp, created = RSVP.objects.get_or_create(user=request.user, event=event)
+
+            if created:
+                messages.success(
+                    request,
+                    f"RSVP confirmed for {event.name}! A confirmation email has been sent to your mail address.",
+                )
+            else:
+                messages.info(request, f"You have already RSVPed for {event.name}.")
         else:
-            messages.info(request, f"You have already RSVPed for {event.name}.")
+            messages.error(request, "Only participants can RSVP for events.")
+            return redirect("events:dashboard")
     else:
         messages.error(request, "Something went wrong. try again.")
 

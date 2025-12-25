@@ -10,12 +10,18 @@
       <!-- Center: Navigation (Desktop) -->
       <div class="hidden lg:flex items-center gap-6">
         <a href="{% url 'events:dashboard' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Dashboard</a>
-        <a href="{% url 'events:view-all' %}?type=event" class="text-sm font-medium text-gray-700 hover:text-blue-600">Events</a>
-        <a href="{% url 'events:view-all' %}?type=category" class="text-sm font-medium text-gray-700 hover:text-blue-600">Categories</a>
+        {% if roles.is_admin or roles.is_organizer %}
+          <a href="{% url 'events:view-all' %}?type=event" class="text-sm font-medium text-gray-700 hover:text-blue-600">Events</a>
+          <a href="{% url 'events:view-all' %}?type=category" class="text-sm font-medium text-gray-700 hover:text-blue-600">Categories</a>
+        {% endif %}
         {% comment %} <a href="{% url 'events:view-all' %}?type=participant" class="text-sm font-medium text-gray-700 hover:text-blue-600">Participants</a> {% endcomment %}
-        <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">Users</a>
-        <a href="{% url 'accounts:group-list' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Groups</a>
-        <a href="{% url 'events:rsvp-view' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">RSVP</a>
+        {% if roles.is_admin %}
+          <a href="{% url 'accounts:user-list' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Users</a>
+          <a href="{% url 'accounts:group-list' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Groups</a>
+        {% endif %}
+        {% if roles.is_participant %}
+          <a href="{% url 'events:rsvp-view' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">RSVP</a>
+        {% endif %}
       </div>
 
       <!-- Right: Action Buttons -->
@@ -40,12 +46,18 @@
     <div class="px-4 py-4 flex flex-col gap-3">
       <!-- Navigation Links -->
       <a href="{% url 'events:dashboard' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
-      <a href="{% url 'events:view-all' %}?type=event" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Events</a>
-      <a href="{% url 'events:view-all' %}?type=category" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Categories</a>
+      {% if roles.is_admin or roles.is_organizer %}
+        <a href="{% url 'events:view-all' %}?type=event" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Events</a>
+        <a href="{% url 'events:view-all' %}?type=category" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Categories</a>
+      {% endif %}
       {% comment %} <a href="{% url 'events:view-all' %}?type=participant" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Participants</a> {% endcomment %}
-      <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Users</a>
-      <a href="{% url 'accounts:group-list' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Groups</a>
-      <a href="{% url 'events:rsvp-view' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">RSVP</a>
+      {% if roles.is_admin %}
+        <a href="{% url 'accounts:user-list' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Users</a>
+        <a href="{% url 'accounts:group-list' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Groups</a>
+      {% endif %}
+      {% if roles.is_participant %}
+        <a href="{% url 'events:rsvp-view' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">RSVP</a>
+      {% endif %}
 
       <!-- Divider -->
       <div class="border-t border-gray-200 my-2"></div>

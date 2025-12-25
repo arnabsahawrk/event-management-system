@@ -88,3 +88,19 @@ class CreateGroupForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Group
         fields = ["name", "permissions"]
+
+
+class AssignRoleForm(forms.Form):
+    role = forms.ModelChoiceField(
+        queryset=Group.objects.all(),
+        empty_label="Select role",
+        widget=forms.Select(
+            attrs={
+                "class": (
+                    "px-2 py-1 border border-gray-300 rounded-md text-sm "
+                    "focus:outline-none focus:ring-1 focus:ring-blue-500 "
+                    "bg-white"
+                )
+            }
+        ),
+    )

@@ -1,10 +1,15 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from apps.accounts.forms import CreateGroupForm, CustomRegistrationForm, LoginForm
+from apps.accounts.forms import (
+    AssignRoleForm,
+    CreateGroupForm,
+    CustomRegistrationForm,
+    LoginForm,
+)
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 
 
 def register(request):
@@ -18,7 +23,10 @@ def register(request):
             user = register_form.save(commit=False)
             user.set_password(register_form.cleaned_data["password"])
             user.save()
-            messages.success(request, "Registration successful! Please log in.")
+            messages.success(
+                request,
+                "Registration successful. Please activate your account and log in to continue.",
+            )
             return redirect("accounts:login")
         messages.error(request, "Please correct the errors below.")
     else:
@@ -108,9 +116,72 @@ def update_group(request, id):
 def delete_group(request, id):
     if request.method == "POST":
         group = get_object_or_404(Group, id=id)
+
+        if (
+            group.name == "Admin"
+            or group.name == "Organizer"
+            or group.name == "Participant"
+        ):
+            messages.error(
+                request,
+                "You cannot delete a default group. Default groups are: Admin, Organizer, Participant.",
+            )
+            return redirect("accounts:group-list")
+
         group.delete()
         messages.success(request, "Group deleted successfully.")
     else:
         messages.error(request, "Something went wrong, try again.")
 
     return redirect("accounts:group-list")
+
+
+@login_required
+def user_list(request):
+    users = User.objects.prefetch_related("groups").order_by("-date_joined")
+    assign_form = AssignRoleForm()
+
+    context = {"title": "All Users", "users": users, "assign_form": assign_form}
+    return render(request, "admin/view/user-list.html", context)
+
+
+@login_required
+def assign_role(request, user_id):
+    if request.user.id == user_id:
+        messages.error(request, "You cannot assign a role to yourself.")
+        return redirect("accounts:user-list")
+
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        form = AssignRoleForm(request.POST)
+        if form.is_valid():
+            role = form.cleaned_data["role"]
+            user.groups.clear()
+            user.groups.add(role)
+
+            messages.success(
+                request,
+                f"User {user.username} has been assigned to the {role.name} role",
+            )
+            return redirect("accounts:user-list")
+
+    messages.error(request, "Something went wrong, please try again.")
+    return redirect("accounts:user-list")
+
+
+@login_required
+def delete_user(request, user_id):
+    if request.user.id == user_id:
+        messages.error(request, "You cannot delete yourself.")
+        return redirect("accounts:user-list")
+
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        user.delete()
+        messages.success(request, "User deleted successfully.")
+        return redirect("accounts:user-list")
+
+    messages.error(request, "Something went wrong, please try again.")
+    return redirect("accounts:user-list")

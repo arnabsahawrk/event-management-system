@@ -100,3 +100,21 @@ class StyledFormMixin:
                 widget.attrs.update(
                     {"class": f"{existing} {self.default_classes}".strip()}
                 )
+
+
+def is_admin(user):
+    if not user.is_authenticated:
+        return False
+    return user.is_superuser or user.groups.filter(name="Admin").exists()
+
+
+def is_organizer(user):
+    if not user.is_authenticated:
+        return False
+    return user.groups.filter(name="Organizer").exists()
+
+
+def is_participant(user):
+    if not user.is_authenticated:
+        return False
+    return user.groups.filter(name="Participant").exists()

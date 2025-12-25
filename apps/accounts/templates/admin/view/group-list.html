@@ -37,39 +37,43 @@
 
   <!-- Groups Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-    {% for group in groups %}
-      <div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition flex flex-col">
-        <!-- Group Header -->
-        <div class="px-4 py-3 border-b flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-800">{{ group.name }}</h3>
+    {% if groups %}
+      {% for group in groups %}
+        <div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition flex flex-col">
+          <!-- Group Header -->
+          <div class="px-4 py-3 border-b flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-800">{{ group.name }}</h3>
 
-          <div class="flex gap-2">
-            <a href="{% url 'accounts:update-group' group.id %}" class="px-3 py-1 text-sm bg-green-700 text-white rounded hover:bg-green-800">Update</a>
-            <form method="post" action="{% url 'accounts:delete-group' group.id %}">
-              {% csrf_token %}
-              <button type="submit" class="px-3 py-1 text-sm bg-red-700 text-white rounded hover:bg-red-800">Delete</button>
-            </form>
+            <div class="flex gap-2">
+              <a href="{% url 'accounts:update-group' group.id %}" class="px-3 py-1 text-sm bg-green-700 text-white rounded hover:bg-green-800">Update</a>
+              <form method="post" action="{% url 'accounts:delete-group' group.id %}">
+                {% csrf_token %}
+                <button type="submit" class="px-3 py-1 text-sm bg-red-700 text-white rounded hover:bg-red-800">Delete</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Permissions -->
+          <div class="p-4 flex-1">
+            <p class="text-sm font-medium text-gray-600 mb-2">Permissions</p>
+
+            <div class="max-h-40 overflow-y-auto border rounded-lg p-3 bg-gray-50">
+              <ul class="space-y-1 text-sm">
+                {% for permission in group.permissions.all %}
+                  <li class="flex justify-between items-center gap-2">
+                    <span class="text-gray-700 truncate">{{ permission.name }}</span>
+                    <span class="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">{{ permission.codename }}</span>
+                  </li>
+                {% empty %}
+                  <p class="text-gray-500 italic text-sm">No permissions assigned</p>
+                {% endfor %}
+              </ul>
+            </div>
           </div>
         </div>
-
-        <!-- Permissions -->
-        <div class="p-4 flex-1">
-          <p class="text-sm font-medium text-gray-600 mb-2">Permissions</p>
-
-          <div class="max-h-40 overflow-y-auto border rounded-lg p-3 bg-gray-50">
-            <ul class="space-y-1 text-sm">
-              {% for permission in group.permissions.all %}
-                <li class="flex justify-between items-center gap-2">
-                  <span class="text-gray-700 truncate">{{ permission.name }}</span>
-                  <span class="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">{{ permission.codename }}</span>
-                </li>
-              {% empty %}
-                <p class="text-gray-500 italic text-sm">No permissions assigned</p>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
+      {% endfor %}
+    {% else %}
+      <p class="text-gray-500">No groups found.</p>
+    {% endif %}
   </div>
 {% endblock %}

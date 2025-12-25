@@ -87,7 +87,7 @@
       </div>
     {% else %}
       <!-- EMPTY STATE -->
-      <div class="flex flex-col items-center justify-center text-center py-20 bg-white border rounded-xl">
+      <div class="flex flex-col items-center justify-center text-center py-20 bg-white border rounded-xl px-4">
         <h3 class="text-xl font-semibold text-gray-800 mb-2">No RSVPs Yet</h3>
         <p class="text-gray-500 mb-6 max-w-md">You haven’t RSVPed to any events yet. Browse events and confirm your attendance to see them here.</p>
         <a href="{% url 'events:dashboard' %}?type=all_events" class="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">Browse Events</a>
