@@ -163,7 +163,7 @@ if not DEBUG:
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-FRONTEND_URL = os.environ.get("FRONTEND_URL")
+FRONTEND_URL = "http://127.0.0.1:8000"
 
 LOGIN_URL = "accounts:login"
 
