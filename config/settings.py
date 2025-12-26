@@ -146,12 +146,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-if DEBUG:
-    STATICFILES_DIRS = []
-else:
-    STATICFILES_DIRS = [
-        BASE_DIR / "apps" / "theme" / "static",
-    ]
+STATICFILES_DIRS = []
 
 if not DEBUG:
     STORAGES = {
