@@ -371,7 +371,7 @@ def rsvp_events(request, event_id):
             if created:
                 messages.success(
                     request,
-                    f"RSVP confirmed for {event.name}! A confirmation email has been sent to your mail address.",
+                    f"RSVP confirmed for {event.name}! An invitation email has been sent to your mail address.",
                 )
             else:
                 messages.info(request, f"You have already RSVPed for {event.name}.")
