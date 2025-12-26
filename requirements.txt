@@ -16,3 +16,5 @@ python-dotenv==1.2.1
 
 django-tailwind==4.4.1
 pytailwindcss==0.3.0
+
+django-anymail==14.0
