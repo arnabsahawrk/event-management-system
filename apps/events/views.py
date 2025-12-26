@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 
-from apps.core.helpers import is_admin, is_organizer, is_participant
 from apps.events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
 from apps.events.models import RSVP, Category, Event, Participant
 from django.contrib.auth.decorators import login_required
@@ -135,21 +134,11 @@ def dashboard(request):
             .order_by("sort_group", "sort_date")
         )
 
-    admin_user = is_admin(request.user)
-    organizer_user = is_organizer(request.user)
-    participant_user = is_participant(request.user)
-    users_roles = {
-        "is_admin": admin_user,
-        "is_organizer": organizer_user,
-        "is_participant": participant_user,
-    }
-
     context = {
         "count": counts,
         "events": events,
         "today": todayEvents,
         "categories": categories,
-        "roles": users_roles,
     }
     return render(request, "dashboard.html", context)
 
