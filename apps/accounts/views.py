@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from apps.accounts.forms import (
@@ -12,6 +13,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Group
 
 from apps.core.helpers import is_admin
+from django.contrib.auth.tokens import default_token_generator
 
 
 def register(request):
@@ -24,6 +26,7 @@ def register(request):
         if register_form.is_valid():
             user = register_form.save(commit=False)
             user.set_password(register_form.cleaned_data["password"])
+            user.is_active = False
             user.save()
             messages.success(
                 request,
@@ -195,3 +198,20 @@ def delete_user(request, user_id):
 
     messages.error(request, "Something went wrong, please try again.")
     return redirect("accounts:user-list")
+
+
+def activate_user(request, user_id, token):
+    try:
+        user = User.objects.get(id=user_id)
+        if default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            messages.success(
+                request,
+                "Your account has been activated successfully. You can now log in.",
+            )
+            return redirect("accounts:login")
+        else:
+            return HttpResponse("Invalid Id or Token")
+    except User.DoesNotExist:
+        return HttpResponse("User not found")

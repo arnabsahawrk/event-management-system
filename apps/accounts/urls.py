@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    activate_user,
     assign_role,
     create_group,
     delete_group,
@@ -25,4 +26,5 @@ urlpatterns = [
     path("admin/user-list/", user_list, name="user-list"),
     path("admin/user-list/assign-role/<int:user_id>/", assign_role, name="assign-role"),
     path("admin/user-list/delete-user/<int:user_id>/", delete_user, name="delete-user"),
+    path("activate/<int:user_id>/<str:token>/", activate_user),
 ]
