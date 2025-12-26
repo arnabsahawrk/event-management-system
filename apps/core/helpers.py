@@ -118,3 +118,9 @@ def is_participant(user):
     if not user.is_authenticated:
         return False
     return user.groups.filter(name="Participant").exists()
+
+
+def is_admin_or_organizer(user):
+    if not user.is_authenticated:
+        return False
+    return user.groups.filter(name__in=["Admin", "Organizer"]).exists()

@@ -6,9 +6,13 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 
+from apps.core.helpers import is_admin_or_organizer, is_participant
 from apps.events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
 from apps.events.models import RSVP, Category, Event, Participant
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import (
+    login_required,
+    user_passes_test,
+)
 
 
 @login_required
@@ -143,6 +147,8 @@ def dashboard(request):
     return render(request, "dashboard.html", context)
 
 
+@login_required
+@user_passes_test(is_admin_or_organizer, login_url="core:no-permission")
 def view_all(request):
     type = request.GET.get("type")
 
@@ -164,6 +170,8 @@ def view_all(request):
         return render(request, "view/event-view.html", context)
 
 
+@login_required
+@user_passes_test(is_admin_or_organizer, login_url="core:no-permission")
 def create_form(request):
     type = request.GET.get("type")
 
@@ -214,6 +222,8 @@ def create_form(request):
         return render(request, "form/create-event.html", context)
 
 
+@login_required
+@user_passes_test(is_admin_or_organizer, login_url="core:no-permission")
 def update_form(request, id):
     type = request.GET.get("type")
 
@@ -276,6 +286,8 @@ def update_form(request, id):
         return render(request, "form/create-event.html", context)
 
 
+@login_required
+@user_passes_test(is_admin_or_organizer, login_url="core:no-permission")
 def delete(request, id):
     type = request.GET.get("type")
 
@@ -309,6 +321,7 @@ def delete(request, id):
 
 
 @login_required
+@user_passes_test(is_participant, login_url="core:no-permission")
 def rsvp_view(request):
     today = timezone.now().date()
 
@@ -344,6 +357,7 @@ def rsvp_view(request):
 
 
 @login_required
+@user_passes_test(is_participant, login_url="core:no-permission")
 def rsvp_events(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
@@ -371,6 +385,7 @@ def rsvp_events(request, event_id):
 
 
 @login_required
+@user_passes_test(is_participant, login_url="core:no-permission")
 def rsvp_delete(request, id):
     if request.method == "POST":
         rsvp = RSVP.objects.get(id=id)

@@ -8,8 +8,10 @@ from apps.accounts.forms import (
 )
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Group
+
+from apps.core.helpers import is_admin
 
 
 def register(request):
@@ -62,6 +64,7 @@ def logout(request):
 
 
 @login_required
+@user_passes_test(is_admin, login_url="core:no-permission")
 def group_list(request):
     groups = Group.objects.prefetch_related("permissions").all()
     return render(
@@ -70,6 +73,7 @@ def group_list(request):
 
 
 @login_required
+@user_passes_test(is_admin, login_url="core:no-permission")
 def create_group(request):
     if request.method == "POST":
         group_form = CreateGroupForm(request.POST)
@@ -93,6 +97,8 @@ def create_group(request):
     )
 
 
+@login_required
+@user_passes_test(is_admin, login_url="core:no-permission")
 def update_group(request, id):
     group = get_object_or_404(Group, id=id)
 
@@ -113,6 +119,7 @@ def update_group(request, id):
 
 
 @login_required
+@user_passes_test(is_admin, login_url="core:no-permission")
 def delete_group(request, id):
     if request.method == "POST":
         group = get_object_or_404(Group, id=id)
@@ -137,6 +144,7 @@ def delete_group(request, id):
 
 
 @login_required
+@user_passes_test(is_admin, login_url="core:no-permission")
 def user_list(request):
     users = User.objects.prefetch_related("groups").order_by("-date_joined")
     assign_form = AssignRoleForm()
@@ -146,6 +154,7 @@ def user_list(request):
 
 
 @login_required
+@user_passes_test(is_admin, login_url="core:no-permission")
 def assign_role(request, user_id):
     if request.user.id == user_id:
         messages.error(request, "You cannot assign a role to yourself.")
@@ -171,6 +180,7 @@ def assign_role(request, user_id):
 
 
 @login_required
+@user_passes_test(is_admin, login_url="core:no-permission")
 def delete_user(request, user_id):
     if request.user.id == user_id:
         messages.error(request, "You cannot delete yourself.")
