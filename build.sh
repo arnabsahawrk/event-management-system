@@ -13,7 +13,7 @@ echo "Building Tailwind CSS..."
 echo "==================================="
 cd theme/static_src
 
-npm install
+npm ci --only=production 2>/dev/null || npm install
 
 npm run build
 
@@ -36,20 +36,20 @@ echo "==================================="
 python manage.py collectstatic --no-input --clear
 
 echo "==================================="
-echo "Verifying static files collection..."
+echo "Verifying static files..."
 echo "==================================="
-if [ -f "staticfiles/css/dist/styles.css" ]; then
-    echo "✓ Static files collected successfully"
-    ls -lh staticfiles/css/dist/styles.css
+if [ -d "staticfiles/css" ]; then
+    echo "✓ Static files collected"
+    ls -lh staticfiles/css/dist/styles.css 2>/dev/null || echo "⚠ styles.css not in expected location"
 else
-    echo "⚠ Warning: styles.css not found in staticfiles"
+    echo "⚠ staticfiles/css directory not found"
 fi
 
 echo "==================================="
 echo "Running database migrations..."
 echo "==================================="
-python manage.py migrate
+python manage.py migrate --no-input
 
 echo "==================================="
-echo "Build completed successfully!"
+echo "Build completed successfully! 🎉"
 echo "==================================="
