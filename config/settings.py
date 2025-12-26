@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.core",
     "apps.events",
+    "theme",
 ]
 
 if DEBUG:
@@ -49,7 +50,6 @@ if DEBUG:
         "debug_toolbar",
         "tailwind",
         "django_browser_reload",
-        "theme",
     ]
 
 MIDDLEWARE = [
