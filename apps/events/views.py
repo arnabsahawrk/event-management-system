@@ -14,6 +14,9 @@ from django.contrib.auth.decorators import (
     user_passes_test,
 )
 
+from django.http import HttpResponse
+from datetime import date, time, timedelta
+
 
 @login_required
 def dashboard(request):
@@ -396,3 +399,109 @@ def rsvp_delete(request, id):
         messages.error(request, "Something went wrong. try again.")
 
     return redirect("events:rsvp-view")
+
+
+def seed_demo_data(request):
+    # -----------------------------------
+    # Existing (DO NOT DUPLICATE)
+    # -----------------------------------
+    protected_categories = {
+        "Conference",
+        "Meetup",
+        "Workshop",
+        "Webiner",
+    }
+
+    protected_events = {
+        "Django Conference 2025",
+        "React Workshop",
+        "Python Meetup December",
+    }
+
+    # -----------------------------------
+    # Ensure Protected Categories Exist
+    # -----------------------------------
+    for name in protected_categories:
+        Category.objects.get_or_create(
+            name=name,
+            defaults={
+                "description": f"{name} related professional events."
+            },
+        )
+
+    # -----------------------------------
+    # Additional Categories (Safe to Add)
+    # -----------------------------------
+    extra_categories = [
+        ("Technology", "Events focused on modern software, tools, and platforms."),
+        ("Education", "Learning-based sessions designed to improve skills."),
+        ("Career", "Career guidance, job preparation, and industry insights."),
+    ]
+
+    for name, desc in extra_categories:
+        Category.objects.get_or_create(name=name, defaults={"description": desc})
+
+    category_map = {
+        c.name: c for c in Category.objects.all()
+    }
+
+    # -----------------------------------
+    # Long Description Template
+    # -----------------------------------
+    long_description = (
+        "This event is designed to provide a comprehensive and engaging experience "
+        "for attendees interested in expanding their professional knowledge and skills.\n\n"
+        "Participants will gain practical insights, real-world examples, and opportunities "
+        "to interact with industry peers in a structured and friendly environment.\n\n"
+        "Whether you are a beginner or an experienced professional, this session aims to "
+        "deliver meaningful value and actionable takeaways."
+    )
+
+    # -----------------------------------
+    # Events to Add (EXCLUDING PROTECTED)
+    # -----------------------------------
+    today = date.today()
+
+    events = [
+        ("Advanced Django Patterns", -120, "Technology"),
+        ("System Design Fundamentals", -60, "Education"),
+        ("Backend Engineering Meetup", -30, "Meetup"),
+
+        ("Career Planning for Developers", 0, "Career"),
+        ("Modern Web Architecture", 0, "Technology"),
+
+        ("REST API Design Workshop", 15, "Workshop"),
+        ("Cloud Computing Essentials", 25, "Technology"),
+        ("Data Structures Deep Dive", 40, "Education"),
+        ("AI Tools for Developers", 60, "Technology"),
+        ("Job Interview Preparation", 80, "Career"),
+        ("Open Source Contribution Meetup", 100, "Meetup"),
+    ]
+
+    created_count = 0
+
+    for name, offset, category_name in events:
+        if name in protected_events:
+            continue
+
+        Event.objects.get_or_create(
+            name=name,
+            defaults={
+                "description": long_description,
+                "event_date": today + timedelta(days=offset),
+                "event_time": time(10, 30),
+                "location": "Online",
+                "category": category_map[category_name],
+                # image intentionally omitted → default image
+            },
+        )
+        created_count += 1
+
+    return HttpResponse(
+        f"""
+        <h2>Database Seeded Successfully</h2>
+        <p>New events created: {created_count}</p>
+        <p>Protected categories & events were preserved.</p>
+        <p>Now remove this view and URL.</p>
+        """
+    )
