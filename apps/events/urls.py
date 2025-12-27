@@ -7,7 +7,6 @@ from apps.events.views import (
     rsvp_delete,
     rsvp_events,
     rsvp_view,
-    seed_demo_data,
     update_form,
     view_all,
 )
@@ -22,5 +21,4 @@ urlpatterns = [
     path("dashboard/rsvp/<int:event_id>/", rsvp_events, name="rsvp"),
     path("rsvp-view/", rsvp_view, name="rsvp-view"),
     path("rsvp-delete/<int:id>/", rsvp_delete, name="rsvp-delete"),
-    path("seed-demo/", seed_demo_data),
 ]
