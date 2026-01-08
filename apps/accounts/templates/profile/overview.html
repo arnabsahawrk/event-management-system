@@ -1,0 +1,105 @@
+{% extends 'profile/profile.html' %}
+
+{% block profile_content %}
+  <h1 class="text-xl font-semibold mb-6">Profile Information</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+    <div>
+      <p class="text-gray-500">Username</p>
+      <p class="font-medium">{{ request.user.username }}</p>
+    </div>
+
+    <div>
+      <p class="text-gray-500">Email</p>
+      <p class="font-medium">{{ request.user.email }}</p>
+    </div>
+
+    <div>
+      <p class="text-gray-500">Full Name</p>
+      <p class="font-medium">{{ request.user.get_full_name }}</p>
+    </div>
+
+    <div>
+      <p class="text-gray-500">Phone Number</p>
+      <p class="font-medium">{{ request.user.phone_number|default:'—' }}</p>
+    </div>
+
+    <div>
+      <p class="text-gray-500">Member Since</p>
+      <p class="font-medium">{{ request.user.date_joined|date:'M d, Y' }}</p>
+    </div>
+
+    <div>
+      <p class="text-gray-500">Last Login</p>
+      <p class="font-medium">{{ request.user.last_login|date:'M d, Y H:i' }}</p>
+    </div>
+
+    <div>
+      <p class="text-gray-500">Account Status</p>
+      <span class="inline-flex px-3 py-1 rounded-full text-xs font-medium
+      {% if request.user.is_active %}
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          bg-green-100 text-green-700
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        {% else %}
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          bg-red-100 text-red-700
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        {% endif %}">
+        {{ request.user.is_active|yesno:'Active,Inactive' }}
+      </span>
+    </div>
+  </div>
+{% endblock %}

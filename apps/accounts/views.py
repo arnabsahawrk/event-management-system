@@ -215,3 +215,8 @@ def activate_user(request, user_id, token):
             return HttpResponse("Invalid Id or Token")
     except User.DoesNotExist:
         return HttpResponse("User not found")
+
+
+def profile_page(request):
+    context = {"active_tab": "profile"}
+    return render(request, "profile/overview.html", context)

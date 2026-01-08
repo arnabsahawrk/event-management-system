@@ -12,6 +12,7 @@ from .views import (
     register,
     update_group,
     user_list,
+    profile_page,
 )
 
 app_name = "accounts"
@@ -19,6 +20,7 @@ urlpatterns = [
     path("register/", register, name="register"),
     path("login/", login, name="login"),
     path("logout/", logout, name="logout"),
+    path("profile/overview/", profile_page, name="overview"),
     path("admin/group-list/", group_list, name="group-list"),
     path("admin/create-group/", create_group, name="create-group"),
     path("admin/update-group/<int:id>/", update_group, name="update-group"),
