@@ -13,7 +13,7 @@
         <!-- User Info -->
         <div class="flex flex-col items-center text-center">
           <img
-            src="{{ request.user.profile_picture.url }}"
+            src="{{ request.user.profile_image.url }}"
             alt="Profile Image"
             class="h-24 w-24 rounded-full object-cover border"
           />
@@ -33,7 +33,7 @@
         <!-- Navigation -->
         <nav class="space-y-1">
 
-          <a href="accounts:overview"
+          <a href="{% url 'accounts:overview' %}"
              class="block px-4 py-3 rounded-lg text-sm font-medium transition {% if active_tab == 'profile' %}bg-blue-600 text-white{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
             Profile
           </a>

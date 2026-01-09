@@ -16,7 +16,7 @@
 
     <div>
       <p class="text-gray-500">Full Name</p>
-      <p class="font-medium">{{ request.user.get_full_name }}</p>
+      <p class="font-medium">{{ request.user.get_full_name|default:'—' }}</p>
     </div>
 
     <div>
@@ -38,65 +38,9 @@
       <p class="text-gray-500">Account Status</p>
       <span class="inline-flex px-3 py-1 rounded-full text-xs font-medium
       {% if request.user.is_active %}
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
           bg-green-100 text-green-700
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         {% else %}
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
           bg-red-100 text-red-700
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         {% endif %}">
         {{ request.user.is_active|yesno:'Active,Inactive' }}
       </span>
