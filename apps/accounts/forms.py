@@ -6,6 +6,7 @@ from apps.core.helpers import StyledFormMixin
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.files.uploadedfile import UploadedFile
 from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import get_user_model
 
 
@@ -169,3 +170,66 @@ class EditUserProfileForm(StyledFormMixin, forms.ModelForm):
             raise ValidationError("Phone number must start with 01.")
 
         return phone
+
+
+class ChangeUserPasswordForm(StyledFormMixin, PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["old_password"].label = "Current Password"
+        self.fields["new_password1"].label = "New Password"
+        self.fields["new_password2"].label = "Confirm New Password"
+
+        self.fields["new_password1"].help_text = (
+            "Password must be at least 8 characters with uppercase, "
+            "lowercase, digit, and special character (@#$%^&+=)"
+        )
+
+    def clean_new_password1(self):
+        password = self.cleaned_data.get("new_password1")
+        errors = []
+
+        if not password:
+            raise ValidationError("New password is required")
+
+        if len(password) < 8:
+            errors.append("Password must be at least 8 characters long")
+
+        if not re.search(r"[A-Z]", password):
+            errors.append("Password must contain at least one uppercase letter")
+
+        if not re.search(r"[a-z]", password):
+            errors.append("Password must contain at least one lowercase letter")
+
+        if not re.search(r"[0-9]", password):
+            errors.append("Password must contain at least one digit")
+
+        if not re.search(r"[@#$%^&+=]", password):
+            errors.append(
+                "Password must contain at least one special character (@#$%^&+=)"
+            )
+
+        if errors:
+            raise ValidationError(errors)
+
+        return password
+
+    def clean(self):
+        cleaned_data = super().clean()
+        old_password = cleaned_data.get("old_password")
+        new_password1 = cleaned_data.get("new_password1")
+        new_password2 = cleaned_data.get("new_password2")
+
+        if new_password1 and new_password2:
+            if new_password1 != new_password2:
+                raise ValidationError(
+                    {"new_password2": "The two password fields didn't match."}
+                )
+
+            if old_password and new_password1 == old_password:
+                raise ValidationError(
+                    {
+                        "new_password1": "New password cannot be the same as your current password."
+                    }
+                )
+
+        return cleaned_data

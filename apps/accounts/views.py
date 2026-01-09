@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from apps.accounts.forms import (
     AssignRoleForm,
+    ChangeUserPasswordForm,
     CreateGroupForm,
     CustomRegistrationForm,
     EditUserProfileForm,
@@ -21,6 +22,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.views.generic import UpdateView
+from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 
 User = get_user_model()
@@ -261,11 +263,21 @@ class EditUserProfileView(LoginRequiredMixin, UpdateView):
         return super().form_invalid(form)
 
 
-class ChangeUserPasswordView(LoginRequiredMixin, TemplateView):
-    login_url = "accounts:login"
+class ChangeUserPasswordView(LoginRequiredMixin, PasswordChangeView):
+    form_class = ChangeUserPasswordForm
     template_name = "profile/password.html"
+    login_url = "accounts:login"
+    success_url = reverse_lazy("accounts:password")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "password"
         return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "Your password has been updated successfully!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct the errors below.")
+        return super().form_invalid(form)
