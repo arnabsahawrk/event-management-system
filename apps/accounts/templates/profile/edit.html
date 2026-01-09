@@ -2,16 +2,34 @@
 
 {% block profile_content %}
   <h1 class="text-xl font-semibold mb-6">Edit Profile</h1>
+  <div class="md:w-2/3 mx-auto">
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
 
-  <form method="post" enctype="multipart/form-data" class="space-y-6">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
+      {% for field in form %}
+        <div>
+          {{ field.label_tag }}
+          {% if field.name == 'profile_image' and form.instance.has_custom_profile_image %}
+            <div class="mb-2 p-2 bg-gray-100 rounded">
+              <p class="text-sm text-gray-600 mb-1">Current image:</p>
+              <img src="{{ form.instance.profile_image.url }}" alt="Current" class="h-20 w-auto rounded object-cover" />
+              <p class="text-xs text-gray-500 mt-1">Check "Clear" below and save to remove this image</p>
+            </div>
+          {% endif %}
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">{{ form.first_name }}
-      {{ form.last_name }}
-      {{ form.phone_number }}
-      {{ form.profile_picture }}</div>
+          {{ field }}
 
-    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">Save Changes</button>
-  </form>
+          {% if field.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ field.errors|striptags }}</p>
+          {% endif %}
+
+          {% if field.name == 'profile_image' %}
+            <p class="text-xs text-gray-500 mt-1">Max size: 100KB. Formats: JPG, PNG, WEBP</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition w-full font-medium">Save Changes</button>
+    </form>
+  </div>
 {% endblock %}

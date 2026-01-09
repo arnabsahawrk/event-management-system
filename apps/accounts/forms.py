@@ -1,8 +1,11 @@
 from django import forms
 from django.contrib.auth.models import Group, Permission
 import re
+from apps.accounts.models import CustomUser
 from apps.core.helpers import StyledFormMixin
 from django.contrib.auth.forms import AuthenticationForm
+from django.core.files.uploadedfile import UploadedFile
+from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 
 
@@ -108,3 +111,61 @@ class AssignRoleForm(forms.Form):
             }
         ),
     )
+
+
+class EditUserProfileForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ["first_name", "last_name", "phone_number", "profile_image"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["profile_image"].required = False
+        self.fields["phone_number"].required = False
+
+    def clean_profile_image(self):
+        image = self.cleaned_data.get("profile_image")
+
+        if image is False:
+            return "profile/default.jpg"
+
+        if not image:
+            if self.instance and self.instance.pk:
+                return self.instance.profile_image
+            return None
+
+        if isinstance(image, str):
+            return image
+
+        if isinstance(image, UploadedFile):
+            max_size = 100 * 1024
+
+            if image.size > max_size:
+                raise ValidationError("Image size must be 100KB or less.")
+
+            valid_mime_types = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
+            if image.content_type not in valid_mime_types:
+                raise ValidationError("Only JPG, PNG, or WEBP images are allowed.")
+
+            return image
+
+        return None
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get("phone_number")
+
+        if not phone:
+            return phone
+
+        phone = phone.strip()
+
+        if not phone.isdigit():
+            raise ValidationError("Phone number must contain only digits.")
+
+        if len(phone) != 11:
+            raise ValidationError("Phone number must be exactly 11 digits.")
+
+        if not phone.startswith("01"):
+            raise ValidationError("Phone number must start with 01.")
+
+        return phone

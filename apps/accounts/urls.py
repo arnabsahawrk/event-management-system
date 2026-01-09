@@ -1,6 +1,9 @@
 from django.urls import path
 
 from .views import (
+    UserProfileView,
+    EditUserProfileView,
+    ChangeUserPasswordView,
     activate_user,
     assign_role,
     create_group,
@@ -12,7 +15,6 @@ from .views import (
     register,
     update_group,
     user_list,
-    profile_page,
 )
 
 app_name = "accounts"
@@ -20,7 +22,9 @@ urlpatterns = [
     path("register/", register, name="register"),
     path("login/", login, name="login"),
     path("logout/", logout, name="logout"),
-    path("profile/overview/", profile_page, name="overview"),
+    path("profile/overview/", UserProfileView.as_view(), name="overview"),
+    path("profile/edit/", EditUserProfileView.as_view(), name="edit"),
+    path("profile/password/", ChangeUserPasswordView.as_view(), name="password"),
     path("admin/group-list/", group_list, name="group-list"),
     path("admin/create-group/", create_group, name="create-group"),
     path("admin/update-group/<int:id>/", update_group, name="update-group"),

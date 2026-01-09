@@ -31,6 +31,9 @@ class EventModelForm(StyledFormMixin, forms.ModelForm):
     def clean_image(self):
         image = self.cleaned_data.get("image")
 
+        if image is False:
+            return "profile/default.jpg"
+
         if not image:
             if self.instance and self.instance.pk:
                 return self.instance.image

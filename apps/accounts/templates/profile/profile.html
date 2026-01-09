@@ -38,12 +38,12 @@
             Profile
           </a>
 
-          <a href="#"
+          <a href="{% url 'accounts:edit' %}"
              class="block px-4 py-3 rounded-lg text-sm font-medium transition {% if active_tab == 'edit' %}bg-blue-600 text-white{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
             Edit Profile
           </a>
 
-          <a href="#"
+          <a href="{% url 'accounts:password' %}"
              class="block px-4 py-3 rounded-lg text-sm font-medium transition {% if active_tab == 'password' %}bg-blue-600 text-white{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
             Change Password
           </a>

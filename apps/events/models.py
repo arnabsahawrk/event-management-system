@@ -34,6 +34,9 @@ class Event(models.Model):
         else:
             return "Past"
 
+    def has_custom_event_image(self):
+        return self.image and self.image.name != "events/default.jpg"
+
     def __str__(self) -> str:
         return self.name
 

@@ -5,6 +5,7 @@ from apps.accounts.forms import (
     AssignRoleForm,
     CreateGroupForm,
     CustomRegistrationForm,
+    EditUserProfileForm,
     LoginForm,
 )
 from django.contrib import messages
@@ -12,10 +13,15 @@ from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group
 
+from apps.accounts.models import CustomUser
 from apps.core.helpers import is_admin
 from django.contrib.auth.tokens import default_token_generator
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from django.views.generic import UpdateView
+from django.urls import reverse_lazy
 
 User = get_user_model()
 
@@ -221,6 +227,45 @@ def activate_user(request, user_id, token):
         return HttpResponse("User not found")
 
 
-def profile_page(request):
-    context = {"active_tab": "profile"}
-    return render(request, "profile/overview.html", context)
+class UserProfileView(LoginRequiredMixin, TemplateView):
+    login_url = "accounts:login"
+    template_name = "profile/overview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_tab"] = "profile"
+        return context
+
+
+class EditUserProfileView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = EditUserProfileForm
+    template_name = "profile/edit.html"
+    login_url = "accounts:login"
+    success_url = reverse_lazy("accounts:overview")
+
+    def get_object(self):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_tab"] = "edit"
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "Your profile has been updated successfully!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct the errors below.")
+        return super().form_invalid(form)
+
+
+class ChangeUserPasswordView(LoginRequiredMixin, TemplateView):
+    login_url = "accounts:login"
+    template_name = "profile/password.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_tab"] = "password"
+        return context
