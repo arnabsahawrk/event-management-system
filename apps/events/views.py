@@ -5,119 +5,39 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
+from django.http import HttpRequest
 
 from apps.core.helpers import is_admin_or_organizer, is_participant
-from apps.events.forms import CategoryModelForm, EventModelForm, ParticipantModelForm
-from apps.events.models import RSVP, Category, Event, Participant
-from django.contrib.auth.decorators import (
-    login_required,
-    user_passes_test,
-)
+from apps.events.forms import CategoryModelForm, EventModelForm
+from apps.events.models import RSVP, Category, Event
+from django.urls import reverse_lazy
+from django.views import View
+from django.views.generic import ListView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 
-@login_required
-def dashboard(request):
-    today = timezone.now().date()
+class AdminOrOrganizerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = "core:no-permission"
 
-    type = request.GET.get("type")
+    request: HttpRequest
 
-    counts = Event.objects.aggregate(
-        total_rsvps=models.Count("rsvps", distinct=True),
-        total_events=models.Count("id", distinct=True),
-        upcoming_events=models.Count(
-            "id", filter=models.Q(event_date__gt=today), distinct=True
-        ),
-        past_events=models.Count(
-            "id", filter=models.Q(event_date__lt=today), distinct=True
-        ),
-    )
+    def test_func(self):
+        return is_admin_or_organizer(self.request.user)
 
-    events = Event.objects.select_related("category").all()
-    todayEvents = events.filter(event_date=today)
-    categories = Category.objects.all()
 
-    if type == "search":
-        value = request.GET.get("search-value")
-        if value:
-            events = (
-                events.filter(
-                    models.Q(name__icontains=value)
-                    | models.Q(location__icontains=value)
-                )
-                .annotate(
-                    sort_group=Case(
-                        When(event_date__gte=today, then=Value(0)),
-                        When(event_date__lt=today, then=Value(1)),
-                        output_field=IntegerField(),
-                    ),
-                    sort_date=Case(
-                        When(
-                            event_date__gte=today,
-                            then=Extract("event_date", lookup_name="epoch"),
-                        ),
-                        When(
-                            event_date__lt=today,
-                            then=-Extract("event_date", lookup_name="epoch"),
-                        ),
-                        output_field=IntegerField(),
-                    ),
-                )
-                .order_by("sort_group", "sort_date")
-            )
-    elif type == "category":
-        id = request.GET.get("id")
-        if id:
-            events = (
-                events.filter(category=id)
-                .annotate(
-                    sort_group=Case(
-                        When(event_date__gte=today, then=Value(0)),
-                        When(event_date__lt=today, then=Value(1)),
-                        output_field=IntegerField(),
-                    ),
-                    sort_date=Case(
-                        When(
-                            event_date__gte=today,
-                            then=Extract("event_date", lookup_name="epoch"),
-                        ),
-                        When(
-                            event_date__lt=today,
-                            then=-Extract("event_date", lookup_name="epoch"),
-                        ),
-                        output_field=IntegerField(),
-                    ),
-                )
-                .order_by("sort_group", "sort_date")
-            )
-    elif type == "upcoming_events":
-        events = events.filter(event_date__gt=today).order_by("event_date")
-    elif type == "past_events":
-        events = events.filter(event_date__lt=today).order_by("-event_date")
-    elif type == "all_events":
-        events = events.annotate(
-            sort_group=Case(
-                When(event_date__gte=today, then=Value(0)),
-                When(event_date__lt=today, then=Value(1)),
-                output_field=IntegerField(),
-            ),
-            sort_date=Case(
-                When(
-                    event_date__gte=today,
-                    then=Extract("event_date", lookup_name="epoch"),
-                ),
-                When(
-                    event_date__lt=today,
-                    then=-Extract("event_date", lookup_name="epoch"),
-                ),
-                output_field=IntegerField(),
-            ),
-        ).order_by("sort_group", "sort_date")
-    elif type == "date-range":
-        date_from = request.GET.get("date-from")
-        date_to = request.GET.get("date-to")
-        events = (
-            events.filter(event_date__gte=date_from, event_date__lte=date_to)
-            .annotate(
+class DashboardView(LoginRequiredMixin, ListView):
+    model = Event
+    template_name = "dashboard.html"
+    context_object_name = "events"
+
+    def get_queryset(self):
+        today = timezone.localdate()
+        qs = Event.objects.select_related("category").all()
+
+        filter_type = self.request.GET.get("type")
+
+        def sorted_queryset(queryset):
+            return queryset.annotate(
                 sort_group=Case(
                     When(event_date__gte=today, then=Value(0)),
                     When(event_date__lt=today, then=Value(1)),
@@ -134,265 +54,295 @@ def dashboard(request):
                     ),
                     output_field=IntegerField(),
                 ),
+            ).order_by("sort_group", "sort_date")
+
+        if filter_type == "search":
+            value = self.request.GET.get("search-value")
+            if value:
+                qs = qs.filter(
+                    models.Q(name__icontains=value)
+                    | models.Q(location__icontains=value)
+                )
+                qs = sorted_queryset(qs)
+
+        elif filter_type == "category":
+            category_id = self.request.GET.get("id")
+            if category_id:
+                qs = qs.filter(category=category_id)
+                qs = sorted_queryset(qs)
+
+        elif filter_type == "upcoming_events":
+            qs = qs.filter(event_date__gt=today).order_by("event_date")
+
+        elif filter_type == "past_events":
+            qs = qs.filter(event_date__lt=today).order_by("-event_date")
+
+        elif filter_type == "all_events":
+            qs = sorted_queryset(qs)
+
+        elif filter_type == "date-range":
+            date_from = self.request.GET.get("date-from")
+            date_to = self.request.GET.get("date-to")
+            if date_from and date_to:
+                qs = qs.filter(
+                    event_date__gte=date_from,
+                    event_date__lte=date_to,
+                )
+                qs = sorted_queryset(qs)
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        today = timezone.localdate()
+
+        context["count"] = Event.objects.aggregate(
+            total_rsvps=models.Count("rsvps", distinct=True),
+            total_events=models.Count("id", distinct=True),
+            upcoming_events=models.Count(
+                "id", filter=models.Q(event_date__gt=today), distinct=True
+            ),
+            past_events=models.Count(
+                "id", filter=models.Q(event_date__lt=today), distinct=True
+            ),
+        )
+
+        context["today"] = Event.objects.filter(event_date=today)
+        context["categories"] = Category.objects.all()
+
+        return context
+
+
+class ViewAllView(AdminOrOrganizerRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        view_type = request.GET.get("type")
+
+        if view_type == "category":
+            categories = Category.objects.prefetch_related("events").annotate(
+                events_count=models.Count("events", distinct=True)
             )
-            .order_by("sort_group", "sort_date")
-        )
+            context = {
+                "title": "Category",
+                "categories": categories,
+            }
+            return render(request, "view/category-view.html", context)
 
-    context = {
-        "count": counts,
-        "events": events,
-        "today": todayEvents,
-        "categories": categories,
-    }
-    return render(request, "dashboard.html", context)
-
-
-@login_required
-@user_passes_test(is_admin_or_organizer, login_url="core:no-permission")
-def view_all(request):
-    type = request.GET.get("type")
-
-    if type == "participant":
-        participants = Participant.objects.prefetch_related("events").annotate(
-            events_count=models.Count("events", distinct=True)
-        )
-        context = {"title": "Participant", "participants": participants}
-        return render(request, "view/participant-view.html", context)
-    elif type == "category":
-        categories = Category.objects.prefetch_related("events").annotate(
-            events_count=models.Count("events", distinct=True)
-        )
-        context = {"title": "Category", "categories": categories}
-        return render(request, "view/category-view.html", context)
-    else:
         events = Event.objects.select_related("category").all()
-        context = {"title": "Event", "events": events}
+        context = {
+            "title": "Event",
+            "events": events,
+        }
         return render(request, "view/event-view.html", context)
 
 
-@login_required
-@user_passes_test(is_admin_or_organizer, login_url="core:no-permission")
-def create_form(request):
-    type = request.GET.get("type")
+class CreateFormView(AdminOrOrganizerRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        form_type = request.GET.get("type")
 
-    if type == "participant":
-        if request.method == "POST":
-            participant_form = ParticipantModelForm(request.POST)
+        if form_type == "category":
+            form = CategoryModelForm()
+            return render(
+                request,
+                "form/create-category.html",
+                {"title": "Create Category", "category_form": form},
+            )
 
-            if participant_form.is_valid():
-                participant_form.save()
-                messages.success(request, "Participant created successfully")
-                return redirect(f"{reverse('events:view-all')}?type=participant")
+        form = EventModelForm()
+        return render(
+            request,
+            "form/create-event.html",
+            {"title": "Create Event", "event_form": form},
+        )
 
-            messages.error(request, "Please correct the errors below.")
-        else:
-            participant_form = ParticipantModelForm()
+    def post(self, request, *args, **kwargs):
+        form_type = request.GET.get("type")
 
-        context = {"title": "Create Participant", "participant_form": participant_form}
-        return render(request, "form/create-participant.html", context)
-    elif type == "category":
-        if request.method == "POST":
-            category_form = CategoryModelForm(request.POST)
-
-            if category_form.is_valid():
-                category_form.save()
+        if form_type == "category":
+            form = CategoryModelForm(request.POST)
+            if form.is_valid():
+                form.save()
                 messages.success(request, "Category created successfully")
                 return redirect(f"{reverse('events:view-all')}?type=category")
 
             messages.error(request, "Please correct the errors below.")
-        else:
-            category_form = CategoryModelForm()
+            return render(
+                request,
+                "form/create-category.html",
+                {"title": "Create Category", "category_form": form},
+            )
 
-        context = {"title": "Create Category", "category_form": category_form}
-        return render(request, "form/create-category.html", context)
-    else:
-        if request.method == "POST":
-            event_form = EventModelForm(request.POST, request.FILES)
+        form = EventModelForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Event created successfully")
+            return redirect(f"{reverse('events:view-all')}?type=event")
 
-            if event_form.is_valid():
-                event_form.save()
-                messages.success(request, "Event created successfully")
-                return redirect(f"{reverse('events:view-all')}?type=event")
-
-            messages.error(request, "Please correct the errors below.")
-        else:
-            event_form = EventModelForm()
-
-        context = {"title": "Create Event", "event_form": event_form}
-        return render(request, "form/create-event.html", context)
+        messages.error(request, "Please correct the errors below.")
+        return render(
+            request,
+            "form/create-event.html",
+            {"title": "Create Event", "event_form": form},
+        )
 
 
-@login_required
-@user_passes_test(is_admin_or_organizer, login_url="core:no-permission")
-def update_form(request, id):
-    type = request.GET.get("type")
+class UpdateFormView(AdminOrOrganizerRequiredMixin, View):
+    def get(self, request, id, *args, **kwargs):
+        form_type = request.GET.get("type")
 
-    if type == "participant":
-        participant = Participant.objects.get(id=id)
+        if form_type == "category":
+            category = get_object_or_404(Category, id=id)
+            form = CategoryModelForm(instance=category)
+            return render(
+                request,
+                "form/create-category.html",
+                {"title": "Update Category", "category_form": form},
+            )
 
-        if request.method == "POST":
-            participant_form = ParticipantModelForm(request.POST, instance=participant)
+        event = get_object_or_404(Event, id=id)
+        form = EventModelForm(instance=event)
+        return render(
+            request,
+            "form/create-event.html",
+            {"title": "Update Event", "event_form": form},
+        )
 
-            if participant_form.is_valid():
-                participant_form.save()
-                messages.success(request, "Participant updated successfully")
-                return redirect(
-                    f"{reverse('events:update-form', args=[id])}?type=participant"
-                )
-            messages.error(request, "Please correct the errors below.")
-        else:
-            participant_form = ParticipantModelForm(instance=participant)
+    def post(self, request, id, *args, **kwargs):
+        form_type = request.GET.get("type")
 
-        context = {"title": "Update Participant", "participant_form": participant_form}
-        return render(request, "form/create-participant.html", context)
+        if form_type == "category":
+            category = get_object_or_404(Category, id=id)
+            form = CategoryModelForm(request.POST, instance=category)
 
-    elif type == "category":
-        category = Category.objects.get(id=id)
-
-        if request.method == "POST":
-            category_form = CategoryModelForm(request.POST, instance=category)
-
-            if category_form.is_valid():
-                category_form.save()
+            if form.is_valid():
+                form.save()
                 messages.success(request, "Category updated successfully")
                 return redirect(
                     f"{reverse('events:update-form', args=[id])}?type=category"
                 )
+
             messages.error(request, "Please correct the errors below.")
-        else:
-            category_form = CategoryModelForm(instance=category)
+            return render(
+                request,
+                "form/create-category.html",
+                {"title": "Update Category", "category_form": form},
+            )
 
-        context = {"title": "Update Category", "category_form": category_form}
-        return render(request, "form/create-category.html", context)
+        event = get_object_or_404(Event, id=id)
+        form = EventModelForm(request.POST, request.FILES, instance=event)
 
-    else:
-        event = Event.objects.get(id=id)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Event updated successfully")
+            return redirect(f"{reverse('events:update-form', args=[id])}?type=event")
 
-        if request.method == "POST":
-            event_form = EventModelForm(request.POST, request.FILES, instance=event)
-
-            if event_form.is_valid():
-                event_form.save()
-                messages.success(request, "Event updated successfully")
-                return redirect(
-                    f"{reverse('events:update-form', args=[id])}?type=event"
-                )
-            else:
-                messages.error(request, "Please correct the errors below.")
-        else:
-            event_form = EventModelForm(instance=event)
-
-        context = {"title": "Update Event", "event_form": event_form}
-        return render(request, "form/create-event.html", context)
+        messages.error(request, "Please correct the errors below.")
+        return render(
+            request,
+            "form/create-event.html",
+            {"title": "Update Event", "event_form": form},
+        )
 
 
-@login_required
-@user_passes_test(is_admin_or_organizer, login_url="core:no-permission")
-def delete(request, id):
-    type = request.GET.get("type")
+class DeleteFormView(AdminOrOrganizerRequiredMixin, View):
+    def post(self, request, id, *args, **kwargs):
+        form_type = request.GET.get("type")
 
-    if type == "participant":
-        if request.method == "POST":
-            participant = Participant.objects.get(id=id)
-            participant.delete()
-            messages.success(request, "Participant deleted successfully")
-            return redirect(f"{reverse('events:view-all')}?type=participant")
-        else:
-            messages.error(request, "Something went wrong, try again.")
-            return redirect(f"{reverse('events:view-all')}?type=participant")
-    elif type == "category":
-        if request.method == "POST":
-            category = Category.objects.get(id=id)
+        if form_type == "category":
+            category = get_object_or_404(Category, id=id)
             category.delete()
             messages.success(request, "Category deleted successfully")
             return redirect(f"{reverse('events:view-all')}?type=category")
-        else:
-            messages.error(request, "Something went wrong, try again.")
-            return redirect(f"{reverse('events:view-all')}?type=category")
-    else:
-        if request.method == "POST":
-            event = Event.objects.get(id=id)
-            event.delete()
-            messages.success(request, "Event deleted successfully")
-            return redirect(f"{reverse('events:view-all')}?type=event")
-        else:
-            messages.error(request, "Something went wrong. try again.")
-            return redirect(f"{reverse('events:view-all')}?type=event")
+
+        event = get_object_or_404(Event, id=id)
+        event.delete()
+        messages.success(request, "Event deleted successfully")
+        return redirect(f"{reverse('events:view-all')}?type=event")
 
 
-@login_required
-@user_passes_test(is_participant, login_url="core:no-permission")
-def rsvp_view(request):
-    today = timezone.now().date()
+class RSVPView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = RSVP
+    template_name = "view/rsvp-view.html"
+    context_object_name = "rsvps"
+    login_url = "core:no-permission"
 
-    rsvps = (
-        RSVP.objects.select_related("event")
-        .filter(user=request.user)
-        .annotate(
-            sort_group=Case(
-                When(event__event_date__gte=today, then=Value(0)),
-                When(event__event_date__lt=today, then=Value(1)),
-                output_field=IntegerField(),
-            ),
-            sort_date=Case(
-                When(
-                    event__event_date__gte=today,
-                    then=Extract("event__event_date", lookup_name="epoch"),
+    def test_func(self):
+        return is_participant(self.request.user)
+
+    def get_queryset(self):
+        today = timezone.localdate()
+
+        return (
+            RSVP.objects.select_related("event")
+            .filter(user=self.request.user)
+            .annotate(
+                sort_group=Case(
+                    When(event__event_date__gte=today, then=Value(0)),
+                    When(event__event_date__lt=today, then=Value(1)),
+                    output_field=IntegerField(),
                 ),
-                When(
-                    event__event_date__lt=today,
-                    then=-Extract("event__event_date", lookup_name="epoch"),
+                sort_date=Case(
+                    When(
+                        event__event_date__gte=today,
+                        then=Extract("event__event_date", "epoch"),
+                    ),
+                    When(
+                        event__event_date__lt=today,
+                        then=-Extract("event__event_date", "epoch"),
+                    ),
+                    output_field=IntegerField(),
                 ),
-                output_field=IntegerField(),
-            ),
+            )
+            .order_by("sort_group", "sort_date")
         )
-        .order_by("sort_group", "sort_date")
-    )
 
-    context = {
-        "title": "RSVP",
-        "rsvps": rsvps,
-    }
-    return render(request, "view/rsvp-view.html", context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "RSVP"
+        return context
 
 
-@login_required
-@user_passes_test(is_participant, login_url="core:no-permission")
-def rsvp_events(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
+class RSVPEventView(LoginRequiredMixin, UserPassesTestMixin, View):
+    login_url = "core:no-permission"
 
-    if event.day_status == "Past":
-        messages.info(request, "This event has passed away.")
-    elif request.method == "POST":
+    def test_func(self):
+        return is_participant(self.request.user)
 
-        if request.user.groups.filter(name="Participant").exists():
-            rsvp, created = RSVP.objects.get_or_create(user=request.user, event=event)
+    def post(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id)
 
-            if created:
-                messages.success(
-                    request,
-                    f"RSVP confirmed for {event.name}! An invitation email has been sent to your mail address.",
-                )
-            else:
-                messages.info(request, f"You have already RSVPed for {event.name}.")
-        else:
+        if event.day_status == "Past":
+            messages.info(request, "This event has passed away.")
+            return redirect("events:rsvp-view")
+
+        if not request.user.groups.filter(name="Participant").exists():
             messages.error(request, "Only participants can RSVP for events.")
             return redirect("events:dashboard")
-    else:
-        messages.error(request, "Something went wrong. try again.")
 
-    return redirect("events:rsvp-view")
+        rsvp, created = RSVP.objects.get_or_create(
+            user=request.user,
+            event=event,
+        )
+
+        if created:
+            messages.success(
+                request,
+                f"RSVP confirmed for {event.name}! An invitation email has been sent.",
+            )
+        else:
+            messages.info(request, f"You have already RSVPed for {event.name}.")
+
+        return redirect("events:rsvp-view")
 
 
-@login_required
-@user_passes_test(is_participant, login_url="core:no-permission")
-def rsvp_delete(request, id):
-    if request.method == "POST":
-        rsvp = RSVP.objects.get(id=id)
+class RSVPDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = RSVP
+    success_url = reverse_lazy("events:rsvp-view")
+    login_url = "core:no-permission"
 
-        rsvp.delete()
+    def test_func(self):
+        return is_participant(self.request.user)
+
+    def delete(self, request, *args, **kwargs):
         messages.success(request, "RSVP canceled successfully.")
-    else:
-        messages.error(request, "Something went wrong. try again.")
-
-    return redirect("events:rsvp-view")
+        return super().delete(request, *args, **kwargs)

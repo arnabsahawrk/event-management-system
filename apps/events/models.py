@@ -25,7 +25,7 @@ class Event(models.Model):
 
     @property
     def day_status(self):
-        today = timezone.now().date()
+        today = timezone.localdate()
 
         if self.event_date == today:
             return "Today"
@@ -36,16 +36,6 @@ class Event(models.Model):
 
     def has_custom_event_image(self):
         return self.image and self.image.name != "events/default.jpg"
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class Participant(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-
-    events = models.ManyToManyField(Event, related_name="participants")
 
     def __str__(self) -> str:
         return self.name

@@ -1,6 +1,6 @@
 from django import forms
 from apps.core.helpers import StyledFormMixin
-from .models import Event, Participant, Category
+from .models import Event, Category
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
 
@@ -55,16 +55,6 @@ class EventModelForm(StyledFormMixin, forms.ModelForm):
             return image
 
         return None
-
-
-class ParticipantModelForm(StyledFormMixin, forms.ModelForm):
-    class Meta:
-        model = Participant
-        fields = ["name", "email", "events"]
-        widgets = {
-            "events": forms.CheckboxSelectMultiple,
-            "email": forms.EmailInput,
-        }
 
 
 class CategoryModelForm(StyledFormMixin, forms.ModelForm):

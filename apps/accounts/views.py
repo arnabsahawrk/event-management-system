@@ -21,7 +21,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-from django.views.generic import UpdateView
+from django.views.generic import UpdateView, CreateView
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 
@@ -52,6 +52,10 @@ def register(request):
     return render(request, "register.html", {"register_form": register_form})
 
 
+class RegisterView(CreateView):
+    pass
+
+
 def login(request):
     if request.user.is_authenticated:
         return redirect("core:home")
@@ -76,6 +80,60 @@ def logout(request):
         return redirect("accounts:login")
     else:
         return redirect("core:home")
+
+
+class UserProfileView(LoginRequiredMixin, TemplateView):
+    login_url = "accounts:login"
+    template_name = "profile/overview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_tab"] = "profile"
+        return context
+
+
+class EditUserProfileView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = EditUserProfileForm
+    template_name = "profile/edit.html"
+    login_url = "accounts:login"
+    success_url = reverse_lazy("accounts:overview")
+
+    def get_object(self):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_tab"] = "edit"
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "Your profile has been updated successfully!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct the errors below.")
+        return super().form_invalid(form)
+
+
+class ChangeUserPasswordView(LoginRequiredMixin, PasswordChangeView):
+    form_class = ChangeUserPasswordForm
+    template_name = "profile/password.html"
+    login_url = "accounts:login"
+    success_url = reverse_lazy("accounts:password")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_tab"] = "password"
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "Your password has been updated successfully!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct the errors below.")
+        return super().form_invalid(form)
 
 
 @login_required
@@ -227,57 +285,3 @@ def activate_user(request, user_id, token):
             return HttpResponse("Invalid Id or Token")
     except User.DoesNotExist:
         return HttpResponse("User not found")
-
-
-class UserProfileView(LoginRequiredMixin, TemplateView):
-    login_url = "accounts:login"
-    template_name = "profile/overview.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["active_tab"] = "profile"
-        return context
-
-
-class EditUserProfileView(LoginRequiredMixin, UpdateView):
-    model = CustomUser
-    form_class = EditUserProfileForm
-    template_name = "profile/edit.html"
-    login_url = "accounts:login"
-    success_url = reverse_lazy("accounts:overview")
-
-    def get_object(self):
-        return self.request.user
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["active_tab"] = "edit"
-        return context
-
-    def form_valid(self, form):
-        messages.success(self.request, "Your profile has been updated successfully!")
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        messages.error(self.request, "Please correct the errors below.")
-        return super().form_invalid(form)
-
-
-class ChangeUserPasswordView(LoginRequiredMixin, PasswordChangeView):
-    form_class = ChangeUserPasswordForm
-    template_name = "profile/password.html"
-    login_url = "accounts:login"
-    success_url = reverse_lazy("accounts:password")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["active_tab"] = "password"
-        return context
-
-    def form_valid(self, form):
-        messages.success(self.request, "Your password has been updated successfully!")
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        messages.error(self.request, "Please correct the errors below.")
-        return super().form_invalid(form)

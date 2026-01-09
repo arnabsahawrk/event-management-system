@@ -14,7 +14,6 @@
           <a href="{% url 'events:view-all' %}?type=event" class="text-sm font-medium text-gray-700 hover:text-blue-600">Events</a>
           <a href="{% url 'events:view-all' %}?type=category" class="text-sm font-medium text-gray-700 hover:text-blue-600">Categories</a>
         {% endif %}
-        {% comment %} <a href="{% url 'events:view-all' %}?type=participant" class="text-sm font-medium text-gray-700 hover:text-blue-600">Participants</a> {% endcomment %}
         {% if user_roles.is_admin %}
           <a href="{% url 'accounts:user-list' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Users</a>
           <a href="{% url 'accounts:group-list' %}" class="text-sm font-medium text-gray-700 hover:text-blue-600">Groups</a>
@@ -51,7 +50,6 @@
         <a href="{% url 'events:view-all' %}?type=event" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Events</a>
         <a href="{% url 'events:view-all' %}?type=category" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Categories</a>
       {% endif %}
-      {% comment %} <a href="{% url 'events:view-all' %}?type=participant" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Participants</a> {% endcomment %}
       {% if user_roles.is_admin %}
         <a href="{% url 'accounts:user-list' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Users</a>
         <a href="{% url 'accounts:group-list' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">Groups</a>
