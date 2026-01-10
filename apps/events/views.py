@@ -1,3 +1,4 @@
+from typing import cast
 from django.db import models
 from django.db.models import Case, IntegerField, Value, When
 from django.db.models.functions import Extract
@@ -5,24 +6,13 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
-from django.http import HttpRequest
 
 from apps.core.helpers import is_admin_or_organizer, is_participant
 from apps.events.forms import CategoryModelForm, EventModelForm
 from apps.events.models import RSVP, Category, Event
-from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
-
-class AdminOrOrganizerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = "core:no-permission"
-
-    request: HttpRequest
-
-    def test_func(self):
-        return is_admin_or_organizer(self.request.user)
 
 
 class DashboardView(LoginRequiredMixin, ListView):
@@ -114,7 +104,15 @@ class DashboardView(LoginRequiredMixin, ListView):
         return context
 
 
-class ViewAllView(AdminOrOrganizerRequiredMixin, View):
+class ViewAllView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return is_admin_or_organizer(self.request.user)
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+        return redirect("core:no-permission")
+
     def get(self, request, *args, **kwargs):
         view_type = request.GET.get("type")
 
@@ -136,7 +134,15 @@ class ViewAllView(AdminOrOrganizerRequiredMixin, View):
         return render(request, "view/event-view.html", context)
 
 
-class CreateFormView(AdminOrOrganizerRequiredMixin, View):
+class CreateFormView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return is_admin_or_organizer(self.request.user)
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+        return redirect("core:no-permission")
+
     def get(self, request, *args, **kwargs):
         form_type = request.GET.get("type")
 
@@ -186,7 +192,15 @@ class CreateFormView(AdminOrOrganizerRequiredMixin, View):
         )
 
 
-class UpdateFormView(AdminOrOrganizerRequiredMixin, View):
+class UpdateFormView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return is_admin_or_organizer(self.request.user)
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+        return redirect("core:no-permission")
+
     def get(self, request, id, *args, **kwargs):
         form_type = request.GET.get("type")
 
@@ -244,7 +258,15 @@ class UpdateFormView(AdminOrOrganizerRequiredMixin, View):
         )
 
 
-class DeleteFormView(AdminOrOrganizerRequiredMixin, View):
+class DeleteFormView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return is_admin_or_organizer(self.request.user)
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+        return redirect("core:no-permission")
+
     def post(self, request, id, *args, **kwargs):
         form_type = request.GET.get("type")
 
@@ -261,13 +283,18 @@ class DeleteFormView(AdminOrOrganizerRequiredMixin, View):
 
 
 class RSVPView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+
     model = RSVP
     template_name = "view/rsvp-view.html"
     context_object_name = "rsvps"
-    login_url = "core:no-permission"
 
     def test_func(self):
         return is_participant(self.request.user)
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+        return redirect("core:no-permission")
 
     def get_queryset(self):
         today = timezone.localdate()
@@ -303,10 +330,14 @@ class RSVPView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 
 class RSVPEventView(LoginRequiredMixin, UserPassesTestMixin, View):
-    login_url = "core:no-permission"
 
     def test_func(self):
         return is_participant(self.request.user)
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+        return redirect("core:no-permission")
 
     def post(self, request, event_id):
         event = get_object_or_404(Event, id=event_id)
@@ -337,12 +368,33 @@ class RSVPEventView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 class RSVPDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = RSVP
-    success_url = reverse_lazy("events:rsvp-view")
-    login_url = "core:no-permission"
+    pk_url_kwarg = "id"
 
     def test_func(self):
         return is_participant(self.request.user)
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "RSVP canceled successfully.")
-        return super().delete(request, *args, **kwargs)
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+        return redirect("core:no-permission")
+
+    def get(self, request, *args, **kwargs):
+        messages.error(request, "Invalid request.")
+        return redirect("events:rsvp-view")
+
+    def post(self, request, *args, **kwargs):
+        rsvp = cast(RSVP, self.get_object())
+
+        if rsvp.event.day_status == "Past":
+            messages.error(request, "You cannot cancel an RSVP for a past event.")
+            return redirect("events:rsvp-view")
+
+        try:
+            rsvp.delete()
+            messages.success(request, "RSVP canceled successfully.")
+        except Exception:
+            messages.error(
+                request,
+                "Something went wrong. Please try again.",
+            )
+        return redirect("events:rsvp-view")

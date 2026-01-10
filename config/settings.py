@@ -135,10 +135,10 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://127.0.0.1:8000")
+AUTH_USER_MODEL = "accounts.CustomUser"
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "events:dashboard"
-LOGOUT_REDIRECT_URL = "cord:home"
-AUTH_USER_MODEL = "accounts.CustomUser"
+LOGOUT_REDIRECT_URL = "core:home"
 
 
 # EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")

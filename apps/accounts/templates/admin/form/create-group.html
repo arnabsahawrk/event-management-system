@@ -10,12 +10,12 @@
 
       <form method="post" class="space-y-4">
         {% csrf_token %}
-        <div>{{ group_form.name.label_tag }}
-          {{ group_form.name }}</div>
+        <div>{{ form.name.label_tag }}
+          {{ form.name }}</div>
 
         <div>
-          {{ group_form.permissions.label_tag }}
-          <div class="border rounded-lg p-3 h-64 overflow-y-scroll shadow-inner">{{ group_form.permissions }}</div>
+          {{ form.permissions.label_tag }}
+          <div class="border rounded-lg p-3 h-64 overflow-y-scroll shadow-inner">{{ form.permissions }}</div>
         </div>
         <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition w-full font-medium">Submit</button>
       </form>
