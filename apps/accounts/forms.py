@@ -1,8 +1,20 @@
 from django import forms
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import Group, Permission
 import re
+from apps.accounts.models import CustomUser
 from apps.core.helpers import StyledFormMixin
 from django.contrib.auth.forms import AuthenticationForm
+from django.core.files.uploadedfile import UploadedFile
+from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import (
+    PasswordChangeForm,
+    PasswordResetForm,
+    SetPasswordForm,
+)
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 
 class CustomRegistrationForm(StyledFormMixin, forms.ModelForm):
@@ -73,8 +85,15 @@ class CustomRegistrationForm(StyledFormMixin, forms.ModelForm):
 
 
 class LoginForm(StyledFormMixin, AuthenticationForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
+
+
+class ForgotPasswordForm(StyledFormMixin, PasswordResetForm):
+    pass
+
+
+class ForgotPasswordConfirmForm(StyledFormMixin, SetPasswordForm):
+    pass
 
 
 class CreateGroupForm(StyledFormMixin, forms.ModelForm):
@@ -104,3 +123,130 @@ class AssignRoleForm(forms.Form):
             }
         ),
     )
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.pop("instance", None)
+        super().__init__(*args, **kwargs)
+        if instance and instance.groups.exists():
+            self.fields["role"].initial = instance.groups.first()
+
+
+class EditUserProfileForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ["first_name", "last_name", "phone_number", "profile_image"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["profile_image"].required = False
+        self.fields["phone_number"].required = False
+
+    def clean_profile_image(self):
+        image = self.cleaned_data.get("profile_image")
+
+        if image is False:
+            return "profile/default.jpg"
+
+        if not image:
+            if self.instance and self.instance.pk:
+                return self.instance.profile_image
+            return None
+
+        if isinstance(image, str):
+            return image
+
+        if isinstance(image, UploadedFile):
+            max_size = 100 * 1024
+
+            if image.size > max_size:
+                raise ValidationError("Image size must be 100KB or less.")
+
+            valid_mime_types = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
+            if image.content_type not in valid_mime_types:
+                raise ValidationError("Only JPG, PNG, or WEBP images are allowed.")
+
+            return image
+
+        return None
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get("phone_number")
+
+        if not phone:
+            return phone
+
+        phone = phone.strip()
+
+        if not phone.isdigit():
+            raise ValidationError("Phone number must contain only digits.")
+
+        if len(phone) != 11:
+            raise ValidationError("Phone number must be exactly 11 digits.")
+
+        if not phone.startswith("01"):
+            raise ValidationError("Phone number must start with 01.")
+
+        return phone
+
+
+class ChangeUserPasswordForm(StyledFormMixin, PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["old_password"].label = "Current Password"
+        self.fields["new_password1"].label = "New Password"
+        self.fields["new_password2"].label = "Confirm New Password"
+
+        self.fields["new_password1"].help_text = (
+            "Password must be at least 8 characters with uppercase, "
+            "lowercase, digit, and special character (@#$%^&+=)"
+        )
+
+    def clean_new_password1(self):
+        password = self.cleaned_data.get("new_password1")
+        errors = []
+
+        if not password:
+            raise ValidationError("New password is required")
+
+        if len(password) < 8:
+            errors.append("Password must be at least 8 characters long")
+
+        if not re.search(r"[A-Z]", password):
+            errors.append("Password must contain at least one uppercase letter")
+
+        if not re.search(r"[a-z]", password):
+            errors.append("Password must contain at least one lowercase letter")
+
+        if not re.search(r"[0-9]", password):
+            errors.append("Password must contain at least one digit")
+
+        if not re.search(r"[@#$%^&+=]", password):
+            errors.append(
+                "Password must contain at least one special character (@#$%^&+=)"
+            )
+
+        if errors:
+            raise ValidationError(errors)
+
+        return password
+
+    def clean(self):
+        cleaned_data = super().clean()
+        old_password = cleaned_data.get("old_password")
+        new_password1 = cleaned_data.get("new_password1")
+        new_password2 = cleaned_data.get("new_password2")
+
+        if new_password1 and new_password2:
+            if new_password1 != new_password2:
+                raise ValidationError(
+                    {"new_password2": "The two password fields didn't match."}
+                )
+
+            if old_password and new_password1 == old_password:
+                raise ValidationError(
+                    {
+                        "new_password1": "New password cannot be the same as your current password."
+                    }
+                )
+
+        return cleaned_data

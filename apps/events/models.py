@@ -1,17 +1,19 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class Event(models.Model):
     name = models.CharField(max_length=250)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True)
     event_date = models.DateField()
     event_time = models.TimeField()
     location = models.CharField(max_length=100)
 
     image = models.ImageField(
-        upload_to="events/", default="events/default.jpg", blank=True, null=True
+        upload_to="events/", default="events/default.jpg", blank=True
     )
 
     category = models.ForeignKey(
@@ -23,7 +25,7 @@ class Event(models.Model):
 
     @property
     def day_status(self):
-        today = timezone.now().date()
+        today = timezone.localdate()
 
         if self.event_date == today:
             return "Today"
@@ -32,15 +34,8 @@ class Event(models.Model):
         else:
             return "Past"
 
-    def __str__(self) -> str:
-        return self.name
-
-
-class Participant(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-
-    events = models.ManyToManyField(Event, related_name="participants")
+    def has_custom_event_image(self):
+        return self.image and self.image.name != "events/default.jpg"
 
     def __str__(self) -> str:
         return self.name
@@ -48,7 +43,7 @@ class Participant(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=20)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True)
 
     def __str__(self) -> str:
         return self.name

@@ -1,0 +1,64 @@
+{% extends 'dashboard-layout.html' %}
+
+{% block title %}Profile - Event Management System{% endblock %}
+
+{% block dashboard_layout %}
+<div class="max-w-7xl mx-auto px-6 py-8">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <!-- Sidebar -->
+    <aside class="lg:col-span-3">
+      <div class="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+
+        <!-- User Info -->
+        <div class="flex flex-col items-center text-center">
+          <img
+            src="{{ request.user.profile_image.url }}"
+            alt="Profile Image"
+            class="h-24 w-24 rounded-full object-cover border"
+          />
+
+          <h2 class="mt-4 text-lg font-semibold">
+            {{ request.user.get_full_name|default:request.user.username }}
+          </h2>
+
+          <p class="text-sm text-gray-500">{{ request.user.email }}</p>
+
+          <span class="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+            {% if user_roles.is_admin %}bg-red-100 text-red-700{% elif user_roles.is_organizer %}bg-blue-100 text-blue-700{% else %}bg-green-100 text-green-700{% endif %}">
+            {{ request.user.groups.first.name|default:"Participant" }}
+          </span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="space-y-1">
+
+          <a href="{% url 'accounts:overview' %}"
+             class="block px-4 py-3 rounded-lg text-sm font-medium transition {% if active_tab == 'profile' %}bg-blue-600 text-white{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            Profile
+          </a>
+
+          <a href="{% url 'accounts:edit' %}"
+             class="block px-4 py-3 rounded-lg text-sm font-medium transition {% if active_tab == 'edit' %}bg-blue-600 text-white{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            Edit Profile
+          </a>
+
+          <a href="{% url 'accounts:password' %}"
+             class="block px-4 py-3 rounded-lg text-sm font-medium transition {% if active_tab == 'password' %}bg-blue-600 text-white{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            Change Password
+          </a>
+
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <section class="lg:col-span-9">
+      <div class="bg-white rounded-xl border border-gray-200 p-8">
+        {% block profile_content %}{% endblock %}
+      </div>
+    </section>
+
+  </div>
+</div>
+{% endblock %}

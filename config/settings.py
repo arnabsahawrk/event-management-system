@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-assignment-key-ok-for-demo")
 
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 APPEND_SLASH = True
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "anymail",
 ]
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -47,6 +48,17 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    INSTALLED_APPS += ["django_browser_reload", "debug_toolbar"]
+
+    MIDDLEWARE = [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+        "django_browser_reload.middleware.BrowserReloadMiddleware",
+    ] + MIDDLEWARE
+
+    NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+
 
 INTERNAL_IPS = ["127.0.0.1"]
 
@@ -106,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Dhaka"
 USE_I18N = True
 USE_TZ = True
 
@@ -114,18 +126,22 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_DIRS = [
-    BASE_DIR / "theme" / "static",
+    BASE_DIR / "static",
 ]
 
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://127.0.0.1:8000")
+AUTH_USER_MODEL = "accounts.CustomUser"
 LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "events:dashboard"
+LOGOUT_REDIRECT_URL = "core:home"
 
-EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
+
+EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
 ANYMAIL = {
     "SENDINBLUE_API_KEY": os.environ.get("EMAIL_HOST_PASSWORD"),
 }
