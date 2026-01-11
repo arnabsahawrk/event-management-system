@@ -141,11 +141,11 @@ LOGIN_REDIRECT_URL = "events:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
 
-# EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
-# ANYMAIL = {
-#     "SENDINBLUE_API_KEY": os.environ.get("EMAIL_HOST_PASSWORD"),
-# }
-# DEFAULT_FROM_EMAIL = os.environ.get("EMAIL_HOST_USER")
+EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
+ANYMAIL = {
+    "SENDINBLUE_API_KEY": os.environ.get("EMAIL_HOST_PASSWORD"),
+}
+DEFAULT_FROM_EMAIL = os.environ.get("EMAIL_HOST_USER")
 
 TAILWIND_APP_NAME = "theme"
 

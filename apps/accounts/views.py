@@ -7,7 +7,9 @@ from apps.accounts.forms import (
     CreateGroupForm,
     CustomRegistrationForm,
     EditUserProfileForm,
+    ForgotPasswordForm,
     LoginForm,
+    ForgotPasswordConfirmForm,
 )
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -23,7 +25,13 @@ from django.views.generic import (
     ListView,
     DeleteView,
 )
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth.views import (
+    LoginView,
+    LogoutView,
+    PasswordChangeView,
+    PasswordResetView,
+    PasswordResetConfirmView,
+)
 from django.urls import reverse_lazy
 from django.views import View
 
@@ -73,7 +81,6 @@ class CustomLoginView(LoginView):
 
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy("accounts:login")
-    login_url = "accounts:login"
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -112,6 +119,47 @@ class ActiveUserView(View):
                 "An error occurred during activation. Please try again.",
             )
             return redirect("accounts:login")
+
+
+class ForgotPasswordView(PasswordResetView):
+    form_class = ForgotPasswordForm
+    template_name = "reset-password.html"
+    success_url = reverse_lazy("accounts:login")
+    email_template_name = "reset-email.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("core:home")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["protocol"] = "https" if self.request.is_secure() else "http"
+        context["domain"] = self.request.get_host()
+        return context
+
+    def form_valid(self, form):
+        messages.success(
+            self.request, "A reset link send to your email. Please check your email."
+        )
+        return super().form_valid(form)
+
+
+class ForgotPasswordConfirmView(PasswordResetConfirmView):
+    form_class = ForgotPasswordConfirmForm
+    template_name = "reset-password.html"
+    success_url = reverse_lazy("accounts:login")
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("core:home")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        messages.success(
+            self.request, "Password reset successfully, you can login now."
+        )
+        return super().form_valid(form)
 
 
 class UserProfileView(LoginRequiredMixin, TemplateView):
@@ -351,7 +399,7 @@ class AssignRoleView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             f"User '{self.object.username}' has been assigned to the '{role.name}' role.",
         )
 
-        return self.form_valid(form)
+        return redirect(self.get_success_url())
 
     def form_invalid(self, form):
         messages.error(self.request, "Something went wrong. Please try again.")
@@ -392,11 +440,12 @@ class DeleteUserView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def post(self, request, *args, **kwargs):
         user = cast(CustomUser, self.get_object())
+        username = user.username
 
         try:
             user.delete()
             messages.success(
-                request, f"User '{user.username}' has been deleted successfully."
+                request, f"User '{username}' has been deleted successfully."
             )
         except Exception:
             messages.error(
@@ -404,7 +453,7 @@ class DeleteUserView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
                 "Something went wrong while deleting the user. Please try again.",
             )
 
-        return redirect(self.get_success_url())
+        return redirect("accounts:user-list")
 
     def get(self, request, *args, **kwargs):
         messages.error(request, "Invalid request.")

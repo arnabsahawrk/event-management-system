@@ -6,7 +6,11 @@ from apps.core.helpers import StyledFormMixin
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.files.uploadedfile import UploadedFile
 from django.core.exceptions import ValidationError
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import (
+    PasswordChangeForm,
+    PasswordResetForm,
+    SetPasswordForm,
+)
 from django.contrib.auth import get_user_model
 
 
@@ -81,8 +85,15 @@ class CustomRegistrationForm(StyledFormMixin, forms.ModelForm):
 
 
 class LoginForm(StyledFormMixin, AuthenticationForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
+
+
+class ForgotPasswordForm(StyledFormMixin, PasswordResetForm):
+    pass
+
+
+class ForgotPasswordConfirmForm(StyledFormMixin, SetPasswordForm):
+    pass
 
 
 class CreateGroupForm(StyledFormMixin, forms.ModelForm):
@@ -112,6 +123,12 @@ class AssignRoleForm(forms.Form):
             }
         ),
     )
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.pop("instance", None)
+        super().__init__(*args, **kwargs)
+        if instance and instance.groups.exists():
+            self.fields["role"].initial = instance.groups.first()
 
 
 class EditUserProfileForm(StyledFormMixin, forms.ModelForm):
