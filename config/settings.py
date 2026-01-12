@@ -81,9 +81,6 @@ TEMPLATES = [
     },
 ]
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
 WSGI_APPLICATION = "config.wsgi.application"
 
 if os.environ.get("DATABASE_URL"):
@@ -131,6 +128,12 @@ STATICFILES_DIRS = [
 
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+WHITENOISE_AUTOREFRESH = True if DEBUG else False
+WHITENOISE_USE_FINDERS = True if DEBUG else False
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
