@@ -5,7 +5,6 @@ from django.conf.urls.static import static
 from django.views.static import serve
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
     path("", include("apps.core.urls")),
     path("events/", include("apps.events.urls")),
     path("accounts/", include("apps.accounts.urls")),
@@ -18,6 +17,7 @@ urlpatterns += [
 
 if settings.DEBUG:
     urlpatterns += [
+        path("admin/", admin.site.urls),
         path("__debug__/", include("debug_toolbar.urls")),
         path("__reload__/", include("django_browser_reload.urls")),
     ]
