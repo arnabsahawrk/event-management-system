@@ -13,7 +13,7 @@ class Event(models.Model):
     location = models.CharField(max_length=100)
 
     image = models.ImageField(
-        upload_to="events/", default="events/default", blank=True
+        upload_to="events/", default="events/default.jpg", blank=True
     )
 
     category = models.ForeignKey(
@@ -35,7 +35,7 @@ class Event(models.Model):
             return "Past"
 
     def has_custom_event_image(self):
-        return self.image and self.image.name != "events/default"
+        return self.image and self.image.name != "events/default.jpg"
 
     def __str__(self) -> str:
         return self.name
