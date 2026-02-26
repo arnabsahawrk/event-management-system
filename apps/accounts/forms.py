@@ -145,7 +145,7 @@ class EditUserProfileForm(StyledFormMixin, forms.ModelForm):
         image = self.cleaned_data.get("profile_image")
 
         if image is False:
-            return "profile/default.jpg"
+            return None
 
         if not image:
             if self.instance and self.instance.pk:

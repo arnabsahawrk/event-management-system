@@ -403,7 +403,7 @@ class AssignRoleView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def form_invalid(self, form):
         messages.error(self.request, "Something went wrong. Please try again.")
-        return self.form_invalid(form)
+        return redirect("accounts:user-list")
 
     def test_func(self):
         return is_admin(self.request.user)

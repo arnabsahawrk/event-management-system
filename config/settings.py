@@ -1,5 +1,6 @@
 import os
 import sys
+import cloudinary
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -29,6 +30,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "cloudinary_storage",
+    "cloudinary",
     "apps.accounts",
     "apps.core",
     "apps.events",
@@ -126,11 +129,20 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+    secure=True,
+)
 
 WHITENOISE_AUTOREFRESH = True if DEBUG else False
 WHITENOISE_USE_FINDERS = True if DEBUG else False
