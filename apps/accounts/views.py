@@ -36,6 +36,7 @@ from django.urls import reverse_lazy
 from django.views import View
 
 User = get_user_model()
+DEFAULT_USERNAMES = {"arnabsaha5199", "arnabsahawrk", "admin"}
 
 
 class RegisterView(CreateView):
@@ -377,9 +378,14 @@ class AssignRoleView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         user_id = kwargs.get("user_id")
+        target_user = get_object_or_404(User, id=user_id)
 
         if request.user.pk == user_id:
             messages.error(request, "You cannot assign a role to yourself.")
+            return redirect("accounts:user-list")
+
+        if target_user.username in DEFAULT_USERNAMES:
+            messages.error(request, "You cannot modify default user.")
             return redirect("accounts:user-list")
 
         return super().dispatch(request, *args, **kwargs)
@@ -431,9 +437,14 @@ class DeleteUserView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         user_id = kwargs.get("user_id")
+        target_user = get_object_or_404(User, id=user_id)
 
         if request.user.pk == user_id:
             messages.error(request, "You cannot delete yourself.")
+            return redirect("accounts:user-list")
+
+        if target_user.username in DEFAULT_USERNAMES:
+            messages.error(request, "You cannot modify default user.")
             return redirect("accounts:user-list")
 
         return super().dispatch(request, *args, **kwargs)
