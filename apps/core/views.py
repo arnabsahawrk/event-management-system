@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 
 
 def home_view(request):
@@ -7,3 +8,7 @@ def home_view(request):
 
 def no_permission(request):
     return render(request, "no-permission.html")
+
+
+def health_check(request):
+    return HttpResponse("OK")
