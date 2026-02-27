@@ -37,6 +37,7 @@ from django.views import View
 
 User = get_user_model()
 DEFAULT_USERNAMES = {"arnabsaha5199", "arnabsahawrk", "admin"}
+PROTECTED_GROUPS = {"Admin", "Organizer", "Participant"}
 
 
 class RegisterView(CreateView):
@@ -209,6 +210,15 @@ class ChangeUserPasswordView(LoginRequiredMixin, PasswordChangeView):
         context["active_tab"] = "password"
         return context
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.username in DEFAULT_USERNAMES:
+            messages.error(
+                request,
+                "You cannot change the password for a default user.",
+            )
+            return redirect("accounts:overview")
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         messages.success(self.request, "Your password has been updated successfully!")
         return super().form_valid(form)
@@ -256,6 +266,14 @@ class CreateGroupView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def form_valid(self, form):
         group_name = form.instance.name
+
+        if group_name in PROTECTED_GROUPS:
+            messages.error(
+                self.request,
+                "You cannot create a protected default group.",
+            )
+            return redirect("accounts:group-list")
+
         response = super().form_valid(form)
         messages.success(
             self.request, f"Group '{group_name}' has been created successfully!"
@@ -287,6 +305,15 @@ class UpdateGroupView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return super().handle_no_permission()
         return redirect("core:no-permission")
 
+    def dispatch(self, request, *args, **kwargs):
+        group = cast(Group, self.get_object())
+
+        if group.name in PROTECTED_GROUPS:
+            messages.error(request, "You cannot update a default group.")
+            return redirect("accounts:group-list")
+
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         response = super().form_valid(form)
         messages.success(self.request, "Group updated successfully")
@@ -310,8 +337,6 @@ class DeleteGroupView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Group
     pk_url_kwarg = "id"
 
-    PROTECTED_GROUPS = {"Admin", "Organizer", "Participant"}
-
     def test_func(self):
         return is_admin(self.request.user)
 
@@ -327,7 +352,7 @@ class DeleteGroupView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def post(self, request, *args, **kwargs):
         group = cast(Group, self.get_object())
 
-        if group.name in self.PROTECTED_GROUPS:
+        if group.name in PROTECTED_GROUPS:
             messages.error(
                 request,
                 "You cannot delete a default group. Default groups are: Admin, Organizer, Participant.",
@@ -385,7 +410,7 @@ class AssignRoleView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return redirect("accounts:user-list")
 
         if target_user.username in DEFAULT_USERNAMES:
-            messages.error(request, "You cannot modify default user.")
+            messages.error(request, "You cannot modify a default user.")
             return redirect("accounts:user-list")
 
         return super().dispatch(request, *args, **kwargs)
@@ -444,7 +469,7 @@ class DeleteUserView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return redirect("accounts:user-list")
 
         if target_user.username in DEFAULT_USERNAMES:
-            messages.error(request, "You cannot modify default user.")
+            messages.error(request, "You cannot delete a default user.")
             return redirect("accounts:user-list")
 
         return super().dispatch(request, *args, **kwargs)
